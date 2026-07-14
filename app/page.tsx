@@ -27,6 +27,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AlertTriangle, Download, Loader2, Sparkles, Trash2 } from "lucide-react";
 
+import Attribution from "@/components/board/attribution";
 import { BoardApp } from "@/components/board/board-app";
 import { readBoardHash, writeBoardHash } from "@/components/board/board-picker";
 import { Button } from "@/components/ui/button";
@@ -261,11 +262,19 @@ function FirstRun({ workspace }: { workspace: Workspace }) {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-8 px-6 py-16">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          {APP_NAME}
-        </h1>
-        <p className="mt-3 text-balance text-muted-foreground">{APP_TAGLINE}</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+            {APP_NAME}
+          </h1>
+          <p className="mt-3 text-balance text-muted-foreground">{APP_TAGLINE}</p>
+        </div>
+
+        {/* The first-run screen is the only thing a brand-new visitor sees before
+            they commit to anything, so it is the one surface the attribution
+            cannot be missing from. The banner copy carries it once a board
+            exists; this carries it before one does. */}
+        <Attribution className="shrink-0" />
       </div>
 
       <div className="hover-card-lift rounded-lg border border-border bg-card p-6">
