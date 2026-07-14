@@ -3,7 +3,7 @@
 A kanban board that runs entirely in your browser. **No account, no server, no tracking.**
 Your work never leaves your machine.
 
-[**Try it →**](https://bobi-labs.github.io/work-tracker-free/) &nbsp;·&nbsp; MIT licensed &nbsp;·&nbsp; Zero backend
+[**Try it →**](https://bobilabs.dev/worktracker) &nbsp;·&nbsp; MIT licensed &nbsp;·&nbsp; Zero backend
 
 ---
 

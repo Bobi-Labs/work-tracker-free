@@ -13,3 +13,20 @@ export const APP_NAME = "Bobi Tracker";
 
 export const APP_TAGLINE =
   "A kanban board that lives in your browser. No account, no server, no tracking — your work stays on your machine.";
+
+/**
+ * Attribution shown in the app banner.
+ *
+ * FORKING THIS? These two constants are the whole of it. Retarget them at your
+ * own site and repo, or set either to `null` to hide that link entirely — the
+ * banner adapts. Nothing else in the codebase mentions the maker, and the MIT
+ * licence does not require you to keep them.
+ *
+ * `MAKER_URL` is the product's home page — the canonical place to send someone,
+ * and deliberately NOT the repository. A repo is a destination for developers;
+ * the home page is where everyone else should land.
+ */
+export const MAKER_NAME: string | null = "Bobi Labs";
+export const MAKER_URL: string | null = "https://bobilabs.dev/worktracker";
+export const REPO_URL: string | null =
+  "https://github.com/Bobi-Labs/work-tracker-free";
