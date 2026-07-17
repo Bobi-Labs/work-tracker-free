@@ -32,12 +32,14 @@ export const REPO_URL: string | null =
   "https://github.com/Bobi-Labs/work-tracker-free";
 
 /**
- * Where the in-app Feedback button sends bug reports and ideas.
+ * Where the banner's Feedback button goes: a page on the maker's site with a
+ * real form behind it. A link, not a POST — this app makes zero network
+ * calls (the CSP enforces it), so feedback intake lives OFF the app, on a
+ * site with normal web rules. The first cut used mailto: instead; it died
+ * on contact with reality, because desktop mail-client defaults are
+ * somebody's unloved Outlook, not their actual inbox.
  *
- * There is no server to POST to (that is the whole product), so "sending"
- * means composing: the button opens the user's own mail client via mailto:,
- * or a prefilled GitHub issue via REPO_URL. Set to `null` to remove the
- * email option; if REPO_URL is also null, the Feedback button disappears
- * entirely. Forks: point this at your own inbox or null it out.
+ * Forks: point at your own form or set `null` to remove the button.
  */
-export const FEEDBACK_EMAIL: string | null = "hello@bobilabs.dev";
+export const FEEDBACK_URL: string | null =
+  "https://bobilabs.dev/worktracker/feedback";
