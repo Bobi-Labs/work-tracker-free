@@ -144,3 +144,8 @@ desktop build later, without the UI knowing which one it is talking to.
 ## License
 
 MIT. See [LICENSE](./LICENSE). Use it, fork it, sell it, ship it.
+
+One thing the license does not cover: the **Bobi Tracker** name and the
+Bobi Labs marks. If you ship a fork, ship it under your own name. Everything
+you need to rebrand is three constants in
+[`lib/app-config.ts`](./lib/app-config.ts).
