@@ -14,6 +14,7 @@
 
 import { z } from "zod";
 
+import { MAX_BANNER_DATA_URL_CHARS } from "./banner-image";
 import {
   DOC_KIND,
   INDEX_KIND,
@@ -101,6 +102,14 @@ export const ItemSchema = z.object({
   assignedTo: z.string().nullable(),
   dueDate: z.string().nullable(),
   completedAt: z.string().nullable(),
+  /**
+   * `default(null)`, not required: every board saved before the archive
+   * existed lacks this key, and those boards must keep parsing without a
+   * schema-version bump. (An OLD build reading a NEW doc strips the field —
+   * archived items reappear on the board, which is graceful degradation, not
+   * data loss.)
+   */
+  archivedAt: z.string().nullable().default(null),
   sortOrder: SortOrderSchema,
   createdAt: TimestampSchema,
   updatedAt: TimestampSchema,
@@ -138,7 +147,21 @@ export const DeliverableSchema = z.object({
 export const BoardSettingsSchema = z.object({
   clientName: z.string().nullable(),
   phase: z.string().nullable(),
-  bannerUrl: z.string().nullable(),
+  /**
+   * A custom banner as a `data:image/…` URI (see `lib/banner-image.ts` for the
+   * whole policy — only data URIs ever render). The transform strips an
+   * oversized value instead of failing the parse: a banner is decoration, and
+   * rejecting a whole board — items, notes, deliverables — over a fat image
+   * would punish the user for the least important byte in the file. Oversized
+   * banners also blow the localStorage quota on the very next save, which
+   * surfaces as "NOT SAVING" long after the cause.
+   */
+  bannerUrl: z
+    .string()
+    .nullable()
+    .transform((v) =>
+      v !== null && v.length > MAX_BANNER_DATA_URL_CHARS ? null : v,
+    ),
   accent: z.string().nullable(),
 });
 

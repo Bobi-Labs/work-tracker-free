@@ -102,6 +102,35 @@ const CASES: Record<MutationName, Case> = {
     }),
     run: (s) => s.clearDone(),
   },
+  archiveDone: {
+    setup: (s) => ({
+      item: s.addItem({ title: "done", category: "task", status: "done" }).id,
+    }),
+    run: (s) => s.archiveDone(),
+    entity: item,
+  },
+  archiveItem: {
+    setup: seedItem,
+    run: (s, ids) => s.archiveItem(ids.item!),
+    entity: item,
+  },
+  restoreItem: {
+    setup: (s) => {
+      const id = s.addItem({ title: "seed", category: "task" }).id;
+      s.archiveItem(id);
+      return { item: id };
+    },
+    run: (s, ids) => s.restoreItem(ids.item!),
+    entity: item,
+  },
+  deleteArchived: {
+    setup: (s) => {
+      const id = s.addItem({ title: "doomed", category: "task" }).id;
+      s.archiveItem(id);
+      return { item: id };
+    },
+    run: (s) => s.deleteArchived(),
+  },
   addNote: {
     setup: seedItem,
     // A note has no `updatedAt` of its own — its PARENT ITEM is the entity that
@@ -239,6 +268,10 @@ describe("a mutation that changes nothing does NOT bump anything", () => {
     store.reorderQuestions("does-not-exist", []);
     store.bulkUpdateStatus([seeded.id], "pending"); // already pending
     store.clearDone(); // nothing done
+    store.archiveDone(); // nothing done to archive
+    store.archiveItem("does-not-exist");
+    store.restoreItem(seeded.id); // not archived
+    store.deleteArchived(); // nothing archived
 
     // Object identity, not just an equal timestamp: no commit happened at all.
     expect(store.getSnapshot()).toBe(before);

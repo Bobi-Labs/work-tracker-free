@@ -25,10 +25,12 @@ import {
   FileJson,
   FilePlus2,
   HardDrive,
+  ImagePlus,
   Link2Off,
   RefreshCw,
   Trash2,
   Upload,
+  X,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -41,6 +43,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { APP_NAME } from "@/lib/app-config";
+import { processBannerImage, safeBannerImage } from "@/lib/banner-image";
 import { CorruptDocError } from "@/lib/schema";
 import {
   useBoardDoc,
@@ -49,12 +52,16 @@ import {
   useWorkspace,
 } from "@/lib/store/use-board";
 
-/* ─────────────────────────────── Accents ───────────────────────────────
- * CSS gradients only. `BoardSettings.bannerUrl` is deliberately NOT exposed
- * anywhere in this sheet: a remote image URL renders as a broken box the moment
- * the user is offline, opens the export as `file://`, or runs the Tauri build —
- * i.e. in exactly the situations this app exists for. A gradient needs no
- * network and looks identical everywhere.
+/* ─────────────────────────────── Banner ───────────────────────────────
+ * Two kinds, one policy: everything renders offline.
+ *
+ * Gradients are CSS values; a custom image is a local file downscaled on a
+ * canvas and stored INSIDE the document as a `data:image/…` URI (see
+ * `lib/banner-image.ts`). A *remote* image URL is still deliberately
+ * unsupported — it renders as a broken box the moment the user is offline,
+ * opens the export as `file://`, or runs the Tauri build, i.e. in exactly the
+ * situations this app exists for; and on an imported board it would be a
+ * network beacon.
  */
 
 export interface AccentOption {
@@ -174,8 +181,11 @@ export function SettingsSheet({ open, onOpenChange, file }: Props) {
   const [importError, setImportError] = useState<string | null>(null);
   const [imported, setImported] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [bannerBusy, setBannerBusy] = useState(false);
+  const [bannerError, setBannerError] = useState<string | null>(null);
 
   const fileInput = useRef<HTMLInputElement>(null);
+  const bannerInput = useRef<HTMLInputElement>(null);
 
   // Re-seed the local fields whenever the sheet opens, or the board underneath
   // changes. The inputs are uncontrolled-ish (local state, committed on blur) so
@@ -189,6 +199,7 @@ export function SettingsSheet({ open, onOpenChange, file }: Props) {
     setImportError(null);
     setImported(false);
     setConfirmDelete(false);
+    setBannerError(null);
     // Intentionally keyed on the board identity, not on every doc mutation —
     // re-seeding mid-typing would fight the user for the cursor.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -198,6 +209,26 @@ export function SettingsSheet({ open, onOpenChange, file }: Props) {
     () => safeAccent(doc.settings.accent),
     [doc.settings.accent],
   );
+
+  const bannerImage = useMemo(
+    () => safeBannerImage(doc.settings.bannerUrl),
+    [doc.settings.bannerUrl],
+  );
+
+  const handleBannerFile = async (picked: File) => {
+    setBannerBusy(true);
+    setBannerError(null);
+    try {
+      const dataUrl = await processBannerImage(picked);
+      store.updateSettings({ bannerUrl: dataUrl });
+    } catch (e) {
+      setBannerError(
+        e instanceof Error ? e.message : "That image could not be used.",
+      );
+    } finally {
+      setBannerBusy(false);
+    }
+  };
 
   /**
    * The file name **only when the file is genuinely receiving writes**. An
@@ -345,17 +376,95 @@ export function SettingsSheet({ open, onOpenChange, file }: Props) {
             </Field>
           </section>
 
-          {/* ── Accent ── */}
+          {/* ── Banner ── */}
           <section className="flex flex-col gap-2">
-            <h3 className="text-sm font-semibold text-foreground">Accent</h3>
-            <div className="flex flex-wrap gap-2">
+            <h3 className="text-sm font-semibold text-foreground">Banner</h3>
+
+            {bannerImage ? (
+              <div className="flex flex-col gap-2">
+                <div
+                  className="h-16 w-full rounded-md border border-border"
+                  role="img"
+                  aria-label="Current banner image"
+                  style={{
+                    backgroundImage: `url("${bannerImage}")`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={bannerBusy}
+                    onClick={() => bannerInput.current?.click()}
+                  >
+                    <ImagePlus className="h-4 w-4" />
+                    Replace image…
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={bannerBusy}
+                    onClick={() => store.updateSettings({ bannerUrl: null })}
+                  >
+                    <X className="h-4 w-4" />
+                    Remove image
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                disabled={bannerBusy}
+                onClick={() => bannerInput.current?.click()}
+              >
+                <ImagePlus className="h-4 w-4" />
+                {bannerBusy ? "Processing…" : "Use your own image…"}
+              </Button>
+            )}
+
+            <input
+              ref={bannerInput}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const picked = e.target.files?.[0];
+                // Reset, or re-picking the same file fires no change event.
+                e.target.value = "";
+                if (picked) void handleBannerFile(picked);
+              }}
+            />
+
+            {bannerError && (
+              <p role="alert" className="text-sm text-red-400">
+                {bannerError}
+              </p>
+            )}
+
+            <p className="text-xs text-muted-foreground">
+              The image is resized and stored inside the board itself, so it
+              travels with exports and never touches the network.
+            </p>
+
+            <div className="mt-1 flex flex-wrap gap-2">
               {ACCENTS.map((accent) => {
-                const selected = (accent.value ?? null) === activeAccent;
+                const selected =
+                  !bannerImage && (accent.value ?? null) === activeAccent;
                 return (
                   <button
                     key={accent.id}
                     type="button"
-                    onClick={() => store.updateSettings({ accent: accent.value })}
+                    // Picking a gradient is an explicit choice AGAINST the
+                    // image — the image renders over the accent, so leaving it
+                    // set would make every one of these swatches a dead button.
+                    onClick={() =>
+                      store.updateSettings({
+                        accent: accent.value,
+                        bannerUrl: null,
+                      })
+                    }
                     aria-pressed={selected}
                     title={accent.label}
                     className={`h-9 w-16 rounded-md border transition-all ${

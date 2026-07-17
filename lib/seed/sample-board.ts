@@ -537,6 +537,7 @@ function buildItems(now: number): Item[] {
       assignedTo: spec.assignedTo,
       dueDate: spec.dueInDays === undefined ? null : due(now, spec.dueInDays),
       completedAt,
+      archivedAt: null,
       sortOrder: idx * 10,
       createdAt: at(now, spec.agedDays),
       updatedAt: at(now, touchedDaysAgo),

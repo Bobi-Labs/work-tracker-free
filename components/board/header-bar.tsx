@@ -19,6 +19,7 @@
 import { useEffect, useState } from "react";
 import {
   AlertTriangle,
+  Archive,
   Check,
   Kanban,
   List,
@@ -28,11 +29,13 @@ import {
   PlugZap,
   Settings,
   Sun,
+  SunDim,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
 import { APP_NAME } from "@/lib/app-config";
+import { safeBannerImage } from "@/lib/banner-image";
 import Attribution from "@/components/board/attribution";
 import type { StoreStatus } from "@/lib/store/store";
 import type { BoardSettings } from "@/lib/types";
@@ -76,9 +79,11 @@ const GRADIENT_PREFIXES = [
  * machine"), and it would look like a perfectly normal banner. So: an allowlist
  * of gradient functions, all of which paint offline. Anything else falls back.
  *
- * `bannerUrl` is deliberately NOT rendered at all, even though the field exists —
- * a remote image is a broken image in an offline / `file://` / Tauri build, which
- * is most of the ways this app is actually opened.
+ * `bannerUrl` has its own gate with the same duty: `safeBannerImage` renders
+ * `data:image/…` URIs only. A data URI travels inside the document, so it works
+ * offline, from `file://`, and in a desktop build — a REMOTE image url would be
+ * both a broken image in all of those and a network beacon in the browser, so
+ * it still refuses to render. See `lib/banner-image.ts`.
  */
 function safeAccent(accent: string | null): string {
   if (!accent) return DEFAULT_ACCENT;
@@ -210,6 +215,9 @@ function ReconnectPill({
 /* ──────────────────────────── Theme toggle ──────────────────────────── */
 
 /**
+ * Cycles light → dim → dark. The icon shows the CURRENT theme; the title says
+ * where the next click goes, so three states stay discoverable from one button.
+ *
  * `next-themes` cannot know the resolved theme until it has read the DOM, so the
  * server render and the first client render MUST NOT depend on it. Rendering the
  * icon straight from `resolvedTheme` is the classic hydration mismatch: the
@@ -220,6 +228,15 @@ function ReconnectPill({
  * passes, and it reserves the space so the header does not shift when the real
  * button arrives.
  */
+const THEME_CYCLE = ["light", "dim", "dark"] as const;
+type ThemeName = (typeof THEME_CYCLE)[number];
+
+const THEME_ICONS: Record<ThemeName, typeof Sun> = {
+  light: Sun,
+  dim: SunDim,
+  dark: Moon,
+};
+
 function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
@@ -228,18 +245,27 @@ function ThemeToggle() {
 
   if (!mounted) return <div className="h-8 w-8" aria-hidden />;
 
-  const dark = resolvedTheme === "dark";
+  // `resolvedTheme` is "light" or "dark" when following the system, and the
+  // literal theme name otherwise — so "dim" arrives here as itself.
+  const current: ThemeName = (THEME_CYCLE as readonly string[]).includes(
+    resolvedTheme ?? "",
+  )
+    ? (resolvedTheme as ThemeName)
+    : "light";
+  const next = THEME_CYCLE[(THEME_CYCLE.indexOf(current) + 1) % THEME_CYCLE.length];
+  const Icon = THEME_ICONS[current];
+  const label = `Theme: ${current}. Switch to ${next}.`;
 
   return (
     <Button
       variant="ghost"
       size="icon-sm"
-      onClick={() => setTheme(dark ? "light" : "dark")}
-      title={dark ? "Switch to light theme" : "Switch to dark theme"}
-      aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}
+      onClick={() => setTheme(next)}
+      title={label}
+      aria-label={label}
       className="h-8 w-8 text-muted-foreground hover:text-foreground"
     >
-      {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      <Icon className="h-4 w-4" />
     </Button>
   );
 }
@@ -267,6 +293,9 @@ interface Props {
   reconnectFile: string | null;
   /** Opens the settings sheet, which owns rename / file / Export JSON / Import JSON / delete. */
   onOpenSettings: () => void;
+  /** Opens the archive sheet. The button carries a count badge when non-zero. */
+  onOpenArchive: () => void;
+  archivedCount: number;
 }
 
 export function HeaderBar({
@@ -278,6 +307,8 @@ export function HeaderBar({
   sinkLabel,
   reconnectFile,
   onOpenSettings,
+  onOpenArchive,
+  archivedCount,
 }: Props) {
   const title = boardName.trim() || APP_NAME;
   const subtitle =
@@ -294,10 +325,24 @@ export function HeaderBar({
         className="relative w-full overflow-hidden rounded-lg border border-border"
         style={{ aspectRatio: "40 / 7" }}
       >
-        <div
-          className="h-full w-full"
-          style={{ backgroundImage: safeAccent(settings.accent) }}
-        />
+        {(() => {
+          // A custom image wins over the gradient; both gates fall back safely.
+          const image = safeBannerImage(settings.bannerUrl);
+          return (
+            <div
+              className="h-full w-full"
+              style={
+                image
+                  ? {
+                      backgroundImage: `url("${image}")`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }
+                  : { backgroundImage: safeAccent(settings.accent) }
+              }
+            />
+          );
+        })()}
         <div className="absolute left-4 top-4 inline-block rounded-lg border border-border bg-card px-4 py-2">
           <h1 className="text-base font-bold tracking-tight text-foreground">
             {title}
@@ -356,6 +401,25 @@ export function HeaderBar({
             sinkLabel={sinkLabel}
             onOpenSettings={onOpenSettings}
           />
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onOpenArchive}
+            title={
+              archivedCount > 0
+                ? `Archive (${archivedCount} card${archivedCount === 1 ? "" : "s"})`
+                : "Archive"
+            }
+            aria-label="Open the archive"
+            className="relative h-8 w-8 text-muted-foreground hover:text-foreground"
+          >
+            <Archive className="h-4 w-4" />
+            {archivedCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold leading-none text-primary-foreground">
+                {archivedCount > 99 ? "99+" : archivedCount}
+              </span>
+            )}
+          </Button>
           <ThemeToggle />
           <Button
             variant="ghost"

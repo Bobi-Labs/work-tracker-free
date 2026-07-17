@@ -1,89 +1,125 @@
+<div align="center">
+
 # Bobi Tracker
 
-A kanban board that runs entirely in your browser. **No account, no server, no tracking.**
-Your work never leaves your machine.
+**A kanban board that lives in your browser.**
+No account. No server. No tracking. Your work never leaves your machine.
 
-[**Try it →**](https://bobilabs.dev/worktracker) &nbsp;·&nbsp; MIT licensed &nbsp;·&nbsp; Zero backend
+[![MIT License](https://img.shields.io/badge/license-MIT-10b981)](./LICENSE)
+[![No account required](https://img.shields.io/badge/account-none-6366f1)](#where-your-data-lives)
+[![Network calls](https://img.shields.io/badge/network_calls-zero-6366f1)](#where-your-data-lives)
+[![Works offline](https://img.shields.io/badge/offline-works-10b981)](#where-your-data-lives)
 
----
+**[Try it now →](https://bobilabs.dev/worktracker)** &nbsp;·&nbsp; nothing to install, nothing to sign up for
 
-## Why
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/board-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="docs/board-light.png">
+  <img src="docs/board-dark.png" alt="Bobi Tracker board view: five kanban columns with drag-and-drop cards, stats, and filters" width="100%">
+</picture>
 
-Most task trackers want an account before they'll show you a board, then keep your
-data on someone else's computer. This one doesn't. There is no sign-up because there
-is nothing to sign up *to* — the app is a static site, and your board is a file.
+</div>
 
-## What it does
+## Why this exists
 
-- **Kanban board** — five columns, drag-and-drop, quick-done, keyboard-accessible dragging.
-- **List view** — sortable table, multi-select, bulk status changes.
-- **Item detail** — description, priority, category, assignee, due date, and comments.
-- **Deliverables** — the scope, guide, build notes and open questions behind each piece
-  of work. Answer a question and it's marked answered and dated; clear the answer and
-  it reopens.
-- **Filters** — status, priority, category, due date (overdue / today / this week / no date), and assignee.
-- **Unlimited boards.** No cap, and there never will be one.
-- **Light and dark themes.**
-- **Save to a real file** — on Chrome and Edge, point a board at a `.json` file on your
-  disk and every change is written to it *and* to browser storage. Keep it in a synced
-  folder, a repo, anywhere you already back things up. (Firefox and Safari don't support
-  this yet — those browsers use browser storage plus export/import.)
-- **Export / import** — your whole board as a single `.json` file, anywhere.
+Most task trackers want an account before they will show you a board, then keep
+your data on someone else's computer and charge you to get features back. This
+one doesn't. There is no sign-up because there is nothing to sign up *to*: the
+app is a static site, and your board is a file.
+
+- **Open it, use it.** The first screen has two buttons. One of them loads a
+  sample project so you can feel the tool before you commit a single task.
+- **Verify the privacy claim yourself.** Open the network tab, or just unplug
+  from the internet. There is no request to see. Not for analytics, not for
+  fonts, not for anything.
+- **Leave whenever you like.** Your whole board exports as one readable
+  `.json` file. It is yours, it is plain text, and it makes sense without this
+  app.
+
+## What you get
+
+|  |  |
+|---|---|
+| **Kanban board** | Five columns, drag-and-drop, quick-done, move arrows, keyboard-accessible dragging. |
+| **List view** | Sortable table with multi-select and bulk status changes for backlog surgery. |
+| **Item detail** | Description, priority, category, assignee, due date, and a comment thread per card. |
+| **Deliverables** | The scope, build notes, and open questions behind each piece of work. Answer a question and it is stamped and dated; clear the answer and it reopens. |
+| **Archive** | Sweep the Done column out of the way with one click. Nothing is deleted: archived cards restore to the column they left, any time. |
+| **Filters** | Status, priority, category, assignee, and due date (overdue / today / this week / no date). |
+| **Save to a real file** | On Chrome and Edge, point a board at a `.json` file on disk and every change writes straight to it. Keep it in a synced folder, a repo, anywhere you already back things up. |
+| **Custom banners** | Give each board its own image. It is resized, compressed, and stored *inside* the board, so it travels with exports and renders offline. |
+| **Three themes** | Light, dim, and dark. Dim is the mid-tone for people who find light glaring and dark muddy. |
+| **Unlimited boards** | No cap, no trial, no paid tier of this tool. |
+
+<div align="center">
+<img src="docs/item-detail.png" alt="Item detail panel with description, metadata, and comments" width="49%"> <img src="docs/board-dim.png" alt="The dim theme: a mid-tone palette between light and dark" width="49%">
+</div>
 
 ## Where your data lives
 
 In **this browser, on this device**, in `localStorage`. That has one important
-consequence, and we'd rather say it plainly than bury it:
+consequence, and we would rather say it plainly than bury it:
 
 > **Clearing your browser's site data will erase your boards.**
 
 So:
 
-- **Export regularly.** Settings → *Export board*. It's one self-contained `.json` file.
-- Import it back on any machine, in any browser. It's yours, it's plain text, and it's
-  readable without this app.
+- **Export regularly.** Settings → *Export board*. One self-contained `.json`
+  file, importable on any machine, in any browser, readable without this app.
+- **Better: attach a file** (Chrome and Edge). Every change then writes to disk
+  *and* to browser storage, and the file on disk is the copy that survives.
 
-Nothing is ever sent anywhere. There is no network call in this application — not for
-analytics, not for fonts, not for anything. You can verify that: unplug from the
-internet and it keeps working.
+Nothing is ever sent anywhere. We have no copy of your data, because we never
+had one.
 
-## Running it
+## Running it yourself
 
 ```bash
 pnpm install
 pnpm dev        # http://localhost:3000
 ```
 
-Build a static site (no server needed — the output is plain files):
+Build a static site (the output is plain files; no server needed):
 
 ```bash
 pnpm build      # emits ./out
 npx serve out
 ```
 
-Other scripts:
-
-```bash
-pnpm typecheck
-pnpm test
-```
+Other scripts: `pnpm typecheck` · `pnpm test`
 
 ### Hosting it somewhere
 
-`./out` is the whole application. Drop it on any static host, open `index.html`
-from `file://`, or serve it from a USB stick — it doesn't care.
+`./out` is the whole application. Drop it on any static host, open
+`index.html` from `file://`, or serve it from a USB stick.
 
-One caveat: if you serve it from a **sub-path** rather than a domain root (GitHub
-Pages project sites do this, and so does any reverse-proxy mount), set `BASE_PATH`
-at build time or every asset will 404:
+One caveat: if you serve it from a **sub-path** rather than a domain root
+(GitHub Pages project sites, reverse-proxy mounts), set `BASE_PATH` at build
+time or every asset will 404:
 
 ```bash
 BASE_PATH=/my-subpath pnpm build
 ```
 
-Leave it unset for a domain root, `file://`, or a desktop build — those need *no*
-base path, and setting one breaks them. It's the only environment variable in the
-project, and it's optional.
+Leave it unset for a domain root, `file://`, or a desktop build. It is the only
+environment variable in the project, and it is optional.
+
+## Free vs. bespoke
+
+This tool is free, MIT licensed, and stays that way. It is deliberately
+single-player. The bespoke tier is the same product built around a team:
+
+| | **Bobi Tracker (this repo)** | **Bespoke, by [Bobi Labs](https://bobilabs.dev)** |
+|---|---|---|
+| Boards, list, deliverables, archive | ✅ | ✅ |
+| Accounts and roles | — (none, on purpose) | ✅ Multi-user with role-gated editing |
+| Where data lives | Your machine only | Your own hosted database |
+| Client-facing views | — | ✅ Read-only "show the work" pages |
+| Invoicing per work item | — | ✅ |
+| Telegram / Google Drive integration | — | ✅ |
+| Deployment | Any static host | Hosted and maintained for you |
+
+Need the right column? **[Talk to us](https://bobilabs.dev/worktracker)**.
 
 ## Tech
 
@@ -91,21 +127,14 @@ Next.js (static export) · React · TypeScript · Tailwind · zod ·
 [@hello-pangea/dnd](https://github.com/hello-pangea/dnd)
 
 Persistence sits behind a deliberately dumb `StorageAdapter`
-(`load` / `save` / `clear`, whole-document). That's what lets the same store back
-`localStorage` today, the File System Access API next, and a desktop build after that,
-without the UI knowing which one it's talking to.
+(`load` / `save` / `clear`, whole-document). That is what lets the same store
+back `localStorage` today, the File System Access API on Chromium, and a
+desktop build later, without the UI knowing which one it is talking to.
 
 ## Roadmap
 
-- **Desktop app** — a Tauri build, with local files natively. The storage layer is
-  already shaped for it: the same `StorageAdapter` that backs browser storage and the
-  File System Access API takes a native file handle without the UI knowing.
-
-## Need something more?
-
-This is the free tool, and it stays free. If you need a version built around *your*
-workflow — multiple users, client-facing views, invoicing, Telegram or Drive
-integration, a hosted deployment — that's what [Bobi Labs](https://bobilabs.dev) does.
+- **Desktop app.** A Tauri build with native local files. The storage layer is
+  already shaped for it.
 
 ## License
 

@@ -30,7 +30,11 @@ export default function Attribution({ className }: { className?: string }) {
           href={MAKER_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-md border border-border bg-card/90 px-2.5 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur transition-colors hover:text-foreground"
+          // The soft emerald glow is deliberate: it is the one element in the
+          // whole app that leaves the app, and the halo says "this is a link"
+          // without shouting over the board. Emerald, not the indigo primary,
+          // so it reads as its own thing in every theme.
+          className="rounded-md border border-emerald-500/40 bg-card/90 px-2.5 py-1 text-[11px] font-medium text-muted-foreground shadow-[0_0_10px_rgba(16,185,129,0.35)] backdrop-blur transition-all hover:border-emerald-400/70 hover:text-foreground hover:shadow-[0_0_16px_rgba(16,185,129,0.55)]"
         >
           Built by{" "}
           <span className="font-semibold text-foreground">{MAKER_NAME}</span>

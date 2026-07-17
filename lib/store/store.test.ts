@@ -102,6 +102,106 @@ describe("completedAt derivation", () => {
   });
 });
 
+describe("archive", () => {
+  it("archiveDone stamps only unarchived Done items, and leaves status alone", () => {
+    const { store } = freshStore();
+    const done = store.addItem({ title: "d", category: "task", status: "done" });
+    const open = store.addItem({ title: "o", category: "task" });
+
+    store.archiveDone();
+    const [d, o] = store.getSnapshot().items;
+    expect(d!.archivedAt).not.toBeNull();
+    expect(d!.status).toBe("done"); // archive is not a status change
+    expect(o!.archivedAt).toBeNull();
+    expect(done.id).toBe(d!.id);
+    expect(open.id).toBe(o!.id);
+  });
+
+  it("archiveDone preserves an existing archive stamp (no re-stamp)", () => {
+    const { store } = freshStore();
+    store.addItem({ title: "d", category: "task", status: "done" });
+    store.archiveDone();
+    const stamp = store.getSnapshot().items[0]!.archivedAt;
+
+    vi.setSystemTime(new Date(Date.now() + 60_000));
+    store.archiveDone(); // nothing left to archive — must be a no-op
+    expect(store.getSnapshot().items[0]!.archivedAt).toBe(stamp);
+    vi.useRealTimers();
+  });
+
+  it("restoreItem clears the stamp; the item keeps its column", () => {
+    const { store } = freshStore();
+    const item = store.addItem({ title: "d", category: "task", status: "done" });
+    store.archiveItem(item.id);
+    expect(store.getSnapshot().items[0]!.archivedAt).not.toBeNull();
+
+    store.restoreItem(item.id);
+    const restored = store.getSnapshot().items[0]!;
+    expect(restored.archivedAt).toBeNull();
+    expect(restored.status).toBe("done");
+    // completedAt survived the round trip — restore is not a status transition
+    expect(restored.completedAt).not.toBeNull();
+  });
+
+  it("deleteArchived removes only archived items", () => {
+    const { store } = freshStore();
+    const keep = store.addItem({ title: "keep", category: "task" });
+    const drop = store.addItem({ title: "drop", category: "task", status: "done" });
+    store.archiveItem(drop.id);
+
+    store.deleteArchived();
+    const items = store.getSnapshot().items;
+    expect(items).toHaveLength(1);
+    expect(items[0]!.id).toBe(keep.id);
+  });
+
+  it("a pre-archive board (no archivedAt key) still imports — default fills it", () => {
+    const { store } = freshStore();
+    const doc = createEmptyDoc("Old");
+    // An item exactly as a pre-archive build wrote it: no archivedAt anywhere.
+    const legacyItem = {
+      id: "i1",
+      title: "old data",
+      description: null,
+      category: "task",
+      priority: "medium",
+      status: "done",
+      assignedTo: null,
+      dueDate: null,
+      completedAt: "2020-01-01T00:00:00.000Z",
+      sortOrder: 0,
+      createdAt: "2020-01-01T00:00:00.000Z",
+      updatedAt: "2020-01-01T00:00:00.000Z",
+      notes: [],
+    };
+    store.importJson(JSON.stringify({ ...doc, items: [legacyItem] }));
+    expect(store.getSnapshot().items[0]!.archivedAt).toBeNull();
+  });
+});
+
+describe("banner import cap", () => {
+  it("strips an oversized bannerUrl instead of failing the whole board", () => {
+    const { store } = freshStore();
+    const doc = createEmptyDoc("Fat banner");
+    doc.settings.bannerUrl = `data:image/jpeg;base64,${"A".repeat(1_000_000)}`;
+
+    // The board must survive; only the decoration is dropped.
+    store.importJson(JSON.stringify(doc));
+    expect(store.getSnapshot().settings.bannerUrl).toBeNull();
+    expect(store.getSnapshot().name).toBe("Fat banner");
+  });
+
+  it("keeps a reasonably-sized data URI", () => {
+    const { store } = freshStore();
+    const doc = createEmptyDoc("Ok banner");
+    const url = "data:image/jpeg;base64,AAAA";
+    doc.settings.bannerUrl = url;
+
+    store.importJson(JSON.stringify(doc));
+    expect(store.getSnapshot().settings.bannerUrl).toBe(url);
+  });
+});
+
 describe("reorderItems", () => {
   it("rewrites sortOrder as index * 10 and moves items into the destination column", () => {
     const { store } = freshStore();

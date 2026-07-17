@@ -1,7 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* `dim` is included in the dark variant ON PURPOSE: it is a mid-tone theme,
+   and every `dark:` utility in the app (badge colours, hover states) reads
+   correctly on its mid backgrounds. Without this, adding a third theme would
+   mean auditing every `dark:` in the codebase — with it, dim inherits dark's
+   behaviour and only the tokens below change. */
+@custom-variant dark (&:is(.dark *, .dim *));
 
 /* ──────────────────────────────────────────────────────────────────────
    Theme tokens.
@@ -10,6 +15,7 @@
    text-primary and must never need to know which palette is active.
 
    :root  = light
+   .dim   = dim    (mid-tone; next-themes sets the `dim` class on <html>)
    .dark  = dark   (next-themes toggles the `dark` class on <html>)
 
    Accent is indigo. `--primary-rgb` exists so raw rgb(... / alpha) glows
@@ -62,6 +68,58 @@
   --text-muted: #94a3b8;
   --primary-glow: rgb(var(--primary-rgb) / 0.1);
   --lift-shadow: rgb(15 23 42 / 0.1);
+}
+
+/* The mid-tone. Slate with the same blue cast as dark, lifted ~10% in
+   lightness, with the indigo primary brightened one step so it keeps its
+   contrast against the lighter cards. Sits between the two extremes for
+   people who find light glaring and dark muddy. */
+.dim {
+  --background: #1e2430;
+  --foreground: #dbe2ee;
+  --card: #262e3d;
+  --card-foreground: #dbe2ee;
+  --popover: #2c3547;
+  --popover-foreground: #dbe2ee;
+  --primary: #7d87f8;
+  --primary-rgb: 125 135 248;
+  --primary-foreground: #ffffff;
+  --secondary: #2c3547;
+  --secondary-foreground: #dbe2ee;
+  --muted: #222937;
+  --muted-foreground: #9daabf;
+  --accent: #2c3547;
+  --accent-foreground: #dbe2ee;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #38425a;
+  --input: #38425a;
+  --ring: #7d87f8;
+  --chart-1: #7d87f8;
+  --chart-2: #38bdf8;
+  --chart-3: #fbbf24;
+  --chart-4: #a78bfa;
+  --chart-5: #fb7185;
+  --radius: 0.5rem;
+  --sidebar: #222937;
+  --sidebar-foreground: #dbe2ee;
+  --sidebar-primary: #7d87f8;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgb(var(--primary-rgb) / 0.14);
+  --sidebar-accent-foreground: #b0b8fb;
+  --sidebar-border: #38425a;
+  --sidebar-ring: #7d87f8;
+  --warning: #fbbf24;
+  --info: #38bdf8;
+  --purple: #a78bfa;
+  --surface: #222937;
+  --elevated: #2c3547;
+  --border-focus: #46516e;
+  --text-bright: #e8edf6;
+  --text-body: #9daabf;
+  --text-muted: #6b7890;
+  --primary-glow: rgb(var(--primary-rgb) / 0.13);
+  --lift-shadow: rgb(0 0 0 / 0.22);
 }
 
 .dark {

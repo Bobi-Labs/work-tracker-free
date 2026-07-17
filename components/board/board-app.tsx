@@ -65,6 +65,7 @@ import {
 } from "@/lib/store/use-board";
 import type { Item, ItemStatus } from "@/lib/types";
 
+import { ArchiveSheet } from "./archive-sheet";
 import { DeliverablesPanel } from "./deliverables-panel";
 import { FilterBar, type BoardFilters } from "./filter-bar";
 import { HeaderBar, type ViewMode } from "./header-bar";
@@ -95,6 +96,22 @@ export function BoardApp() {
   const status = useBoardStatus(store);
 
   const items = doc.items;
+
+  /**
+   * THE ARCHIVE SPLIT. Everything the board renders — columns, list, stats,
+   * filters, assignee pills, sort-order math — consumes `activeItems`. Archived
+   * items exist only in the archive sheet. Miss one consumer and archived cards
+   * haunt it: a "Done 12" stat over a column showing 2, an assignee pill for
+   * someone who only exists on archived cards.
+   */
+  const activeItems = useMemo(
+    () => items.filter((i) => !i.archivedAt),
+    [items],
+  );
+  const archivedItems = useMemo(
+    () => items.filter((i) => i.archivedAt),
+    [items],
+  );
 
   /**
    * Mirror the live document into the workspace index.
@@ -128,6 +145,7 @@ export function BoardApp() {
 
   const [view, setView] = useState<ViewMode>("kanban");
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [archiveOpen, setArchiveOpen] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [filters, setFilters] = useState<BoardFilters>(NO_FILTERS);
 
@@ -161,11 +179,11 @@ export function BoardApp() {
    */
   const assignees = useMemo(() => {
     const set = new Set<string>();
-    for (const item of items) {
+    for (const item of activeItems) {
       if (item.assignedTo) set.add(item.assignedTo);
     }
     return Array.from(set).sort();
-  }, [items]);
+  }, [activeItems]);
 
   /* ─────────────────────────── The filter engine ───────────────────────────
    * Kept verbatim from dashboard.tsx:117-176 — same branches, same comparisons,
@@ -189,7 +207,7 @@ export function BoardApp() {
    * for most of the Americas. Same parse convention in both places, or neither.
    */
   const filteredItems = useMemo(() => {
-    return items.filter((item) => {
+    return activeItems.filter((item) => {
       if (filters.search) {
         const q = filters.search.toLowerCase();
         if (
@@ -237,7 +255,7 @@ export function BoardApp() {
       }
       return true;
     });
-  }, [items, filters]);
+  }, [activeItems, filters]);
 
   /* ────────────────────────────── Mutations ──────────────────────────────
    * Every one of these is a direct, synchronous store call. `store` is created
@@ -269,14 +287,16 @@ export function BoardApp() {
       // the private app inherited from the DB's `DEFAULT 0`. The orchestrator is
       // the only thing that knows the rest of the column, so it does the sum.
       const status = input.status ?? "pending";
-      const maxSort = items.reduce(
+      // Sort against the VISIBLE column — an archived card's sortOrder must not
+      // push new cards below where the eye says the column ends.
+      const maxSort = activeItems.reduce(
         (max, i) => (i.status === status ? Math.max(max, i.sortOrder) : max),
         -10,
       );
       store.addItem({ ...input, sortOrder: maxSort + 10 });
       setShowAddForm(false);
     },
-    [store, items],
+    [store, activeItems],
   );
 
   const handleStatusChange = useCallback(
@@ -306,17 +326,24 @@ export function BoardApp() {
     [store, selectedIds],
   );
 
-  const handleClearDone = useCallback(() => {
-    const doneCount = items.filter((i) => i.status === "done").length;
-    if (doneCount === 0) return;
-    if (
-      window.confirm(
-        `Delete all ${doneCount} cards from the Done column? This cannot be undone.`,
-      )
-    ) {
-      store.clearDone();
-    }
-  }, [items, store]);
+  /**
+   * No confirm, unlike the delete it replaced: archiving is reversible (the
+   * archive sheet restores any card with one click), and confirming a
+   * reversible action teaches people to click through confirms.
+   */
+  const handleArchiveDone = useCallback(() => {
+    store.archiveDone();
+  }, [store]);
+
+  const handleRestoreItem = useCallback(
+    (id: string) => store.restoreItem(id),
+    [store],
+  );
+
+  const handleDeleteArchived = useCallback(
+    () => store.deleteArchived(),
+    [store],
+  );
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -356,6 +383,7 @@ export function BoardApp() {
 
   const handleToggleAddForm = useCallback(() => setShowAddForm((s) => !s), []);
   const handleOpenSettings = useCallback(() => setSettingsOpen(true), []);
+  const handleOpenArchive = useCallback(() => setArchiveOpen(true), []);
 
   /* Where this board saves — see `useBoardFile` below. */
   const file = useBoardFile(store, workspace, doc.id, status);
@@ -373,10 +401,12 @@ export function BoardApp() {
         sinkLabel={file.sinkLabel}
         reconnectFile={file.reconnectFile}
         onOpenSettings={handleOpenSettings}
+        onOpenArchive={handleOpenArchive}
+        archivedCount={archivedItems.length}
       />
 
       <div className="mt-4">
-        <StatsCard items={items} />
+        <StatsCard items={activeItems} />
       </div>
 
       {isBoardView && (
@@ -413,7 +443,7 @@ export function BoardApp() {
             onItemClick={handleItemClick}
             onStatusChange={handleStatusChange}
             onReorder={handleReorder}
-            onClearDone={handleClearDone}
+            onArchiveDone={handleArchiveDone}
           />
         ) : (
           <ListView
@@ -444,6 +474,15 @@ export function BoardApp() {
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
         file={file.controls}
+      />
+
+      <ArchiveSheet
+        open={archiveOpen}
+        onOpenChange={setArchiveOpen}
+        items={archivedItems}
+        onRestore={handleRestoreItem}
+        onDelete={handleDelete}
+        onDeleteAll={handleDeleteArchived}
       />
     </div>
   );

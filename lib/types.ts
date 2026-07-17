@@ -213,6 +213,17 @@ export interface Item {
    * invariant; if it drifts, "completed this week" counts silently rot.
    */
   completedAt: string | null;
+  /**
+   * Set = the item lives in the archive, off the board. Owned by the store's
+   * dedicated methods (`archiveDone` / `archiveItem` / `restoreItem`) and
+   * deliberately absent from `ItemPatch`, same as `completedAt` — archiving is
+   * a state an item is IN, not a field callers edit. `status` is untouched by
+   * archiving, so a restored item lands back in the column it left.
+   *
+   * Schema note: validated with a `default(null)` so boards written before
+   * this field existed still parse — no schema-version bump, no migration.
+   */
+  archivedAt: string | null;
   /** Dense-ish ordering within a status column. Reorder rewrites as idx * 10. */
   sortOrder: number;
   createdAt: string;

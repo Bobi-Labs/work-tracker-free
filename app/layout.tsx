@@ -19,6 +19,10 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          // "dim" is the mid-tone third theme. Its class gets its own token
+          // block in globals.css, and the `dark` Tailwind variant is widened
+          // to match it — see the @custom-variant note there.
+          themes={["light", "dim", "dark"]}
         >
           {children}
         </ThemeProvider>

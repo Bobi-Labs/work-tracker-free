@@ -7,7 +7,7 @@ import {
   Draggable,
   type DropResult,
 } from "@hello-pangea/dnd";
-import { Trash2 } from "lucide-react";
+import { Archive } from "lucide-react";
 import {
   statusColors,
   statusLabels,
@@ -31,8 +31,11 @@ interface Props {
    * redundant second commit of a move the reorder already performed.
    */
   onReorder: (status: ItemStatus, orderedIds: string[]) => void;
-  /** Required, not optional: an un-passed callback would silently hide the Clear button. */
-  onClearDone: () => void;
+  /**
+   * Archives (does NOT delete) every Done card — `store.archiveDone()`.
+   * Required, not optional: an un-passed callback would silently hide the button.
+   */
+  onArchiveDone: () => void;
 }
 
 export function KanbanView({
@@ -40,7 +43,7 @@ export function KanbanView({
   onItemClick,
   onStatusChange,
   onReorder,
-  onClearDone,
+  onArchiveDone,
 }: Props) {
   // DnD requires client-side only rendering (SSR hydration mismatch fix).
   // `output: 'export'` still PRERENDERS at build time, so this guard is load-bearing
@@ -139,14 +142,16 @@ export function KanbanView({
               </div>
               <div className="flex items-center gap-2">
                 {status === "done" && columns[status].length > 0 && (
+                  // Non-destructive, so no confirm: every card lands in the
+                  // archive (header, box icon) and restores with one click.
                   <button
                     type="button"
-                    onClick={onClearDone}
-                    title="Delete all Done cards"
-                    className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                    onClick={onArchiveDone}
+                    title="Archive all Done cards. They move to the archive, off the board, and can be restored any time."
+                    className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
                   >
-                    <Trash2 className="h-3 w-3" />
-                    Clear
+                    <Archive className="h-3 w-3" />
+                    Archive
                   </button>
                 )}
                 <span className="text-xs font-mono text-muted-foreground">

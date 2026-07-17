@@ -134,6 +134,8 @@ export function createItem(input: NewItemInput, ts: string = now()): Item {
     // An item created straight into `done` is completed the moment it exists.
     // Same rule as every other transition — see `deriveCompletedAt` in store.ts.
     completedAt: (input.status ?? "pending") === "done" ? ts : null,
+    // Nothing is born archived. Only the store's archive methods set this.
+    archivedAt: null,
     sortOrder: input.sortOrder ?? 0,
     createdAt: ts,
     updatedAt: ts,

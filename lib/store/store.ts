@@ -113,7 +113,16 @@ export interface BoardStore {
   /** Rewrites `sortOrder` as `index * 10` across the destination column, and moves any item that wasn't already in it. */
   reorderItems(status: ItemStatus, orderedIds: string[]): void;
   bulkUpdateStatus(ids: string[], status: ItemStatus): void;
+  /** Permanently deletes every Done item. The archive methods below are the non-destructive alternative the UI prefers. */
   clearDone(): void;
+
+  /* archive — `archivedAt` is store-owned, like `completedAt`. Archiving never
+   * touches `status`, so a restored item lands back in the column it left. */
+  archiveDone(): void;
+  archiveItem(id: string): void;
+  restoreItem(id: string): void;
+  /** Permanently deletes every archived item. The only bulk delete the UI exposes. */
+  deleteArchived(): void;
 
   /* notes (embedded in items) */
   addNote(itemId: string, content: string): Note;
@@ -596,6 +605,47 @@ class BoardStoreImpl implements BoardStore {
   clearDone = (): void => {
     this.commit((doc) => {
       const items = doc.items.filter((i) => i.status !== "done");
+      return items.length === doc.items.length ? null : { ...doc, items };
+    });
+  };
+
+  /* ── archive ── */
+
+  archiveDone = (): void => {
+    this.commit((doc, ts) => {
+      let changed = false;
+      const items = doc.items.map((item) => {
+        if (item.status !== "done" || item.archivedAt) return item;
+        changed = true;
+        return { ...item, archivedAt: ts, updatedAt: ts };
+      });
+      return changed ? { ...doc, items } : null;
+    });
+  };
+
+  archiveItem = (id: string): void => {
+    this.commit((doc, ts) => {
+      const index = doc.items.findIndex((i) => i.id === id);
+      if (index < 0 || doc.items[index]!.archivedAt) return null;
+      const items = [...doc.items];
+      items[index] = { ...items[index]!, archivedAt: ts, updatedAt: ts };
+      return { ...doc, items };
+    });
+  };
+
+  restoreItem = (id: string): void => {
+    this.commit((doc, ts) => {
+      const index = doc.items.findIndex((i) => i.id === id);
+      if (index < 0 || !doc.items[index]!.archivedAt) return null;
+      const items = [...doc.items];
+      items[index] = { ...items[index]!, archivedAt: null, updatedAt: ts };
+      return { ...doc, items };
+    });
+  };
+
+  deleteArchived = (): void => {
+    this.commit((doc) => {
+      const items = doc.items.filter((i) => !i.archivedAt);
       return items.length === doc.items.length ? null : { ...doc, items };
     });
   };
