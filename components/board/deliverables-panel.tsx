@@ -62,6 +62,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Markdown } from "@/components/board/markdown";
 import type { DeliverablePatch, QuestionPatch } from "@/lib/store/board-doc";
 import { useBoard, useBoardStore } from "@/lib/store/use-board";
 import {
@@ -939,7 +940,11 @@ function CardBody({
 
 /* ───────────────────────────── Markdown ───────────────────────────── */
 
-/** Lifted verbatim. Renders the source text with newlines preserved. */
+/**
+ * These fields were named `scopeMd` / `guideMd` / `buildNotesMd` from day one,
+ * but until `components/board/markdown.tsx` existed they rendered as plain
+ * text — the names wrote a cheque the component didn't cash. Now they render.
+ */
 function MarkdownView({
   label,
   value,
@@ -955,15 +960,14 @@ function MarkdownView({
       <div className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
         {label}
       </div>
-      <div
-        className={`whitespace-pre-wrap text-sm leading-relaxed ${
+      <Markdown
+        text={value}
+        className={
           emphasis
             ? "rounded-md border border-blue-500/20 bg-blue-500/5 p-2 text-blue-100"
             : "text-foreground"
-        }`}
-      >
-        {value}
-      </div>
+        }
+      />
     </div>
   );
 }
@@ -1311,7 +1315,11 @@ const QuestionRow = memo(function QuestionRow({
             isOpen ? "text-amber-400" : "text-muted-foreground"
           }`}
         />
-        <div className="flex-1 whitespace-pre-wrap">{question.questionMd}</div>
+        {/* min-w-0: a code block in the question must scroll inside this
+            flex child, not blow the row out past the panel edge. */}
+        <div className="min-w-0 flex-1">
+          <Markdown text={question.questionMd} className="space-y-1" />
+        </div>
         <span className="flex-shrink-0 text-[9px] uppercase tracking-widest text-muted-foreground">
           {questionStatusLabels[question.status]}
         </span>
@@ -1360,8 +1368,13 @@ const QuestionRow = memo(function QuestionRow({
               </div>
             </div>
           ) : (
-            <div className="whitespace-pre-wrap text-xs text-muted-foreground">
-              {question.answerMd}
+            <div className="text-xs text-muted-foreground">
+              {question.answerMd && (
+                <Markdown
+                  text={question.answerMd}
+                  className="space-y-1 text-xs leading-relaxed"
+                />
+              )}
               {/* The original credited an answer to an email address. There is
                   one user and no auth, so the useful fact is *when*. */}
               {question.answeredAt && (

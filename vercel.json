@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "connect-src 'none'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'"
+        }
+      ]
+    }
+  ]
+}

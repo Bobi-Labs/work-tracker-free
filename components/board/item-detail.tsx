@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import {
+  Archive,
   Send,
   Trash2,
   Save,
@@ -19,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Markdown } from "@/components/board/markdown";
 import type { ItemPatch } from "@/lib/store/board-doc";
 import {
   statusColors,
@@ -209,6 +211,13 @@ interface Props {
   /** Wire to `store.updateItem`. `completedAt` is derived there — never patch it. */
   onUpdate: (id: string, patch: ItemPatch) => void;
   onDelete: (id: string) => void;
+  /**
+   * Wire to `store.archiveItem` (via the orchestrator, which also clears the
+   * selection — an archived item leaves the board, so the panel must close).
+   * Archive is the reversible sibling of delete: no confirm step, because the
+   * Archive sheet can always bring the item back.
+   */
+  onArchive: (id: string) => void;
   /** Wire to `store.addNote` / `updateNote` / `deleteNote`. */
   onAddNote: (itemId: string, content: string) => void;
   onUpdateNote: (itemId: string, noteId: string, content: string) => void;
@@ -229,6 +238,7 @@ export function ItemDetail({
   onClose,
   onUpdate,
   onDelete,
+  onArchive,
   onAddNote,
   onUpdateNote,
   onDeleteNote,
@@ -243,6 +253,13 @@ export function ItemDetail({
   const [category, setCategory] = useState<ItemCategory>("task");
   const [localStatus, setLocalStatus] = useState<ItemStatus>("pending");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  /**
+   * Description is rendered as markdown when it has content and the user is
+   * not editing it. Clicking the rendered text (or the pencil) swaps in the
+   * textarea. An empty description shows the textarea directly — there is
+   * nothing to render, and a hidden empty editor reads as a missing feature.
+   */
+  const [editingDescription, setEditingDescription] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingNoteContent, setEditingNoteContent] = useState("");
@@ -267,12 +284,23 @@ export function ItemDetail({
     setCategory(item.category);
     setLocalStatus(item.status);
     setConfirmDelete(false);
+    setEditingDescription(false);
     setDirty(false);
     setEditingNoteId(null);
     setConfirmDeleteNoteId(null);
     setNewNote("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item?.id]);
+
+  // Reopening the SAME item skips the seed effect above (loadedItemId still
+  // matches), so transient view state must reset on close or a description
+  // editor left open comes back wedged open next time.
+  useEffect(() => {
+    if (!open) {
+      setEditingDescription(false);
+      setConfirmDelete(false);
+    }
+  }, [open]);
 
   if (!item) return null;
 
@@ -295,6 +323,9 @@ export function ItemDetail({
       onUpdate(item.id, patch);
     }
     setDirty(false);
+    // Saving is the natural end of a description edit — collapse back to the
+    // rendered view so the user sees what their markdown actually looks like.
+    setEditingDescription(false);
   };
 
   const markDirty = () => setDirty(true);
@@ -480,19 +511,71 @@ export function ItemDetail({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-[10px] uppercase tracking-widest text-muted-foreground">
-              Description
-            </label>
-            <Textarea
-              value={description}
-              onChange={(e) => {
-                setDescription(e.target.value);
-                markDirty();
-              }}
-              placeholder="Add details..."
-              rows={3}
-              className="resize-none"
-            />
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="block text-[10px] uppercase tracking-widest text-muted-foreground">
+                Description
+              </label>
+              {!editingDescription && description.trim() !== "" && (
+                <button
+                  type="button"
+                  onClick={() => setEditingDescription(true)}
+                  aria-label="Edit description"
+                  className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                >
+                  <Pencil className="h-3 w-3" />
+                </button>
+              )}
+            </div>
+            {editingDescription || description.trim() === "" ? (
+              <>
+                <Textarea
+                  value={description}
+                  onChange={(e) => {
+                    setDescription(e.target.value);
+                    markDirty();
+                  }}
+                  // Clicking away with nothing changed collapses back to the
+                  // rendered view — otherwise an accidental click into the
+                  // editor has no exit at all (Save only renders when dirty).
+                  onBlur={() => {
+                    if (description === (item.description ?? ""))
+                      setEditingDescription(false);
+                  }}
+                  placeholder="Add details..."
+                  rows={editingDescription ? 6 : 3}
+                  className="resize-none"
+                  autoFocus={editingDescription}
+                />
+                <p className="mt-1 text-[10px] text-muted-foreground">
+                  Markdown supported: **bold**, `code`, - lists, - [ ] checkboxes, [links](https://…)
+                </p>
+              </>
+            ) : (
+              /* Click-to-edit. A real <button> would nest interactive elements
+                 (the markdown can contain links), so this is a div with the
+                 keyboard affordances added by hand. Link clicks stop their
+                 propagation inside <Markdown>, so following one does not also
+                 open the editor. */
+              <div
+                role="button"
+                tabIndex={0}
+                title="Click to edit"
+                onClick={() => setEditingDescription(true)}
+                onKeyDown={(e) => {
+                  // Only when the wrapper ITSELF is focused. A markdown link
+                  // inside is tabbable; Enter on it must follow the link, not
+                  // get preventDefault'd into opening the editor.
+                  if (e.target !== e.currentTarget) return;
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setEditingDescription(true);
+                  }
+                }}
+                className="-mx-1 cursor-text rounded-md border border-transparent px-1 py-0.5 transition-colors hover:border-border"
+              >
+                <Markdown text={description} />
+              </div>
+            )}
           </div>
 
           {dirty && (
@@ -574,15 +657,27 @@ export function ItemDetail({
                 </Button>
               </div>
             ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setConfirmDelete(true)}
-                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-              >
-                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                Delete Item
-              </Button>
+              <div className="flex items-center justify-between">
+                {/* Archive first, delete second: the reversible action gets
+                    the reachable spot, the destructive one keeps its confirm. */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onArchive(item.id)}
+                >
+                  <Archive className="mr-1.5 h-3.5 w-3.5" />
+                  Archive Item
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setConfirmDelete(true)}
+                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                  Delete Item
+                </Button>
+              </div>
             )}
           </div>
         </div>

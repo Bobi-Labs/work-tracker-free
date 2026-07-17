@@ -29,12 +29,15 @@ app is a static site, and your board is a file.
 
 - **Open it, use it.** The first screen has two buttons. One of them loads a
   sample project so you can feel the tool before you commit a single task.
-- **Verify the privacy claim yourself.** Open the network tab, or just unplug
-  from the internet. There is no request to see. Not for analytics, not for
-  fonts, not for anything.
+- **Verify the privacy claim yourself.** The app ships a
+  `Content-Security-Policy` of `connect-src 'none'` — your *browser* refuses
+  every fetch, XHR, and WebSocket the page could attempt, so "no tracking" is
+  enforced, not promised. The hosted deployment's headers also lock images,
+  fonts, and media to the app itself. Or just unplug from the internet:
+  everything keeps working.
 - **Leave whenever you like.** Your whole board exports as one readable
-  `.json` file. It is yours, it is plain text, and it makes sense without this
-  app.
+  `.json` file. It is yours, it is plain text, it makes sense without this
+  app, and the format is documented in [FORMAT.md](./FORMAT.md).
 
 ## What you get
 
@@ -43,8 +46,10 @@ app is a static site, and your board is a file.
 | **Kanban board** | Five columns, drag-and-drop, quick-done, move arrows, keyboard-accessible dragging. |
 | **List view** | Sortable table with multi-select and bulk status changes for backlog surgery. |
 | **Item detail** | Description, priority, category, assignee, due date, and a comment thread per card. |
+| **Markdown descriptions** | Bold, lists, `- [ ]` checkboxes, code, and links render right in the card detail and deliverables. Hostile input renders as inert text — the renderer never touches raw HTML. |
+| **Quick-add tokens** | Type `fix invoice !high #bug @sam due:fri` and the card lands filed, prioritized, assigned, and dated. Unrecognised tokens stay in the title. |
 | **Deliverables** | The scope, build notes, and open questions behind each piece of work. Answer a question and it is stamped and dated; clear the answer and it reopens. |
-| **Archive** | Sweep the Done column out of the way with one click. Nothing is deleted: archived cards restore to the column they left, any time. |
+| **Archive** | Sweep the Done column with one click, or archive any single card from its detail panel. Nothing is deleted: archived cards restore to the column they left, any time. |
 | **Filters** | Status, priority, category, assignee, and due date (overdue / today / this week / no date). |
 | **Save to a real file** | On Chrome and Edge, point a board at a `.json` file on disk and every change writes straight to it. Keep it in a synced folder, a repo, anywhere you already back things up. |
 | **Custom banners** | Give each board its own image. It is resized, compressed, and stored *inside* the board, so it travels with exports and renders offline. |

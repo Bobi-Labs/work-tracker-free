@@ -279,6 +279,18 @@ export function BoardApp() {
     [store],
   );
 
+  /** One-off archive from the detail panel — the per-item sibling of the
+   *  header's archive-all-done sweep. The item stays in `doc.items`, so the
+   *  selection must be cleared explicitly or the panel would keep rendering
+   *  a card that is no longer on the board. */
+  const handleArchiveItem = useCallback(
+    (id: string) => {
+      store.archiveItem(id);
+      setSelectedId((curr) => (curr === id ? null : curr));
+    },
+    [store],
+  );
+
   const handleCreateItem = useCallback(
     (input: NewItemInput) => {
       // New cards land at the BOTTOM of their column. `addItem` defaults
@@ -465,6 +477,7 @@ export function BoardApp() {
         onClose={() => setSelectedId(null)}
         onUpdate={handleUpdate}
         onDelete={handleDelete}
+        onArchive={handleArchiveItem}
         onAddNote={handleAddNote}
         onUpdateNote={handleUpdateNote}
         onDeleteNote={handleDeleteNote}

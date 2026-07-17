@@ -15,9 +15,11 @@
  * "restore" the assignee check.
  */
 
-import { useId, useState } from "react";
-import { X } from "lucide-react";
+import { useId, useMemo, useState } from "react";
+import { format, parseISO } from "date-fns";
+import { Zap, X } from "lucide-react";
 
+import { parseQuickAdd } from "@/lib/quick-add";
 import {
   categoryLabels,
   priorityLabels,
@@ -55,6 +57,23 @@ export function NewItemForm({ open, onClose, onSubmit, assignees = [] }: Props) 
 
   const assigneeListId = useId();
 
+  /**
+   * Quick-add tokens, parsed live: `fix invoice !high #bug @sam due:fri`.
+   * A token beats its dropdown — it is the later, visible intent, and the
+   * hint row below the input shows exactly what will be applied, so nothing
+   * is silent. Unrecognised tokens stay in the title (see lib/quick-add.ts).
+   */
+  const parsed = useMemo(() => parseQuickAdd(title), [title]);
+  const tokenHints = useMemo(() => {
+    const hints: string[] = [];
+    if (parsed.priority) hints.push(`${priorityLabels[parsed.priority]} priority`);
+    if (parsed.category) hints.push(categoryLabels[parsed.category]);
+    if (parsed.assignedTo) hints.push(`@${parsed.assignedTo}`);
+    if (parsed.dueDate)
+      hints.push(`due ${format(parseISO(parsed.dueDate), "EEE, MMM d")}`);
+    return hints;
+  }, [parsed]);
+
   const reset = () => {
     setTitle("");
     setCategory("task");
@@ -65,15 +84,21 @@ export function NewItemForm({ open, onClose, onSubmit, assignees = [] }: Props) 
   };
 
   const handleSubmit = () => {
+    // Parse FRESH at submit — the memo above froze `today` at the last
+    // keystroke, and a form left open across midnight would otherwise store
+    // yesterday for `due:today`. The memo is for the hint; this is for real.
+    const final = parseQuickAdd(title);
     // Title, and nothing else. See the note at the top of this file.
-    if (!title.trim()) return;
+    // Guard on the PARSED title: "!high #bug" is a non-empty input whose
+    // title is entirely tokens, and an untitled card is unfindable.
+    if (!final.title.trim()) return;
     onSubmit({
-      title: title.trim(),
-      category,
-      priority,
+      title: final.title,
+      category: final.category ?? category,
+      priority: final.priority ?? priority,
       description: description.trim() || null,
-      assignedTo: assignedTo.trim() || null,
-      dueDate: dueDate || null,
+      assignedTo: final.assignedTo ?? (assignedTo.trim() || null),
+      dueDate: final.dueDate ?? (dueDate || null),
     });
     reset();
     onClose();
@@ -99,7 +124,7 @@ export function NewItemForm({ open, onClose, onSubmit, assignees = [] }: Props) 
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="What needs to be done?"
+            placeholder="What needs to be done?  (try: !high #bug @sam due:fri)"
             className={`flex-1 ${inputClass}`}
             autoFocus
             onKeyDown={(e) => {
@@ -116,6 +141,16 @@ export function NewItemForm({ open, onClose, onSubmit, assignees = [] }: Props) 
             <X className="h-4 w-4" />
           </button>
         </div>
+
+        {tokenHints.length > 0 && (
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <Zap className="h-3 w-3 text-primary" />
+            <span>
+              Sets:{" "}
+              <span className="text-foreground">{tokenHints.join(" · ")}</span>
+            </span>
+          </div>
+        )}
 
         <input
           type="text"
@@ -182,7 +217,7 @@ export function NewItemForm({ open, onClose, onSubmit, assignees = [] }: Props) 
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!title.trim()}
+            disabled={!parsed.title.trim()}
             className="rounded-md bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
           >
             Create
