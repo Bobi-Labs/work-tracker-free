@@ -24,6 +24,7 @@ import {
   Kanban,
   List,
   Loader2,
+  MessageSquarePlus,
   Moon,
   Package,
   PlugZap,
@@ -34,9 +35,10 @@ import {
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
-import { APP_NAME } from "@/lib/app-config";
+import { APP_NAME, FEEDBACK_EMAIL, REPO_URL } from "@/lib/app-config";
 import { safeBannerImage } from "@/lib/banner-image";
 import Attribution from "@/components/board/attribution";
+import { FeedbackSheet } from "@/components/board/feedback-sheet";
 import type { StoreStatus } from "@/lib/store/store";
 import type { BoardSettings } from "@/lib/types";
 import { BoardPicker } from "./board-picker";
@@ -316,6 +318,10 @@ export function HeaderBar({
       ? `${settings.clientName} · ${settings.phase}`
       : (settings.clientName ?? settings.phase ?? null);
 
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  // No channel configured (fork nulled both constants) → no button at all.
+  const feedbackAvailable = !!(FEEDBACK_EMAIL || REPO_URL);
+
   return (
     <div className="space-y-4">
       {/* Banner with the board title overlaid (opaque card, top-left). The overlay
@@ -354,8 +360,26 @@ export function HeaderBar({
           )}
         </div>
 
-        <Attribution className="absolute right-3 top-3" />
+        {/* Attribution row, with the feedback trigger stacked under it —
+            operator's placement call: "under the Built by Bobi Labs button". */}
+        <div className="absolute right-3 top-3 flex flex-col items-end gap-1">
+          <Attribution />
+          {feedbackAvailable && (
+            <button
+              type="button"
+              onClick={() => setFeedbackOpen(true)}
+              className="flex items-center gap-1 rounded-md border border-border bg-card/90 px-2.5 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur transition-colors hover:text-foreground"
+            >
+              <MessageSquarePlus className="h-3 w-3" />
+              Feedback
+            </button>
+          )}
+        </div>
       </div>
+
+      {feedbackAvailable && (
+        <FeedbackSheet open={feedbackOpen} onOpenChange={setFeedbackOpen} />
+      )}
 
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
         {/* Cell 1 — board picker */}

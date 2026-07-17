@@ -30,3 +30,14 @@ export const MAKER_NAME: string | null = "Bobi Labs";
 export const MAKER_URL: string | null = "https://bobilabs.dev/worktracker";
 export const REPO_URL: string | null =
   "https://github.com/Bobi-Labs/work-tracker-free";
+
+/**
+ * Where the in-app Feedback button sends bug reports and ideas.
+ *
+ * There is no server to POST to (that is the whole product), so "sending"
+ * means composing: the button opens the user's own mail client via mailto:,
+ * or a prefilled GitHub issue via REPO_URL. Set to `null` to remove the
+ * email option; if REPO_URL is also null, the Feedback button disappears
+ * entirely. Forks: point this at your own inbox or null it out.
+ */
+export const FEEDBACK_EMAIL: string | null = "hello@bobilabs.dev";
