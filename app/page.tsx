@@ -89,6 +89,13 @@ function Shell({ store }: { store: BoardStore }) {
 
   /* ── mount: read the workspace index, then honour a deep link ── */
   useEffect(() => {
+    // Best-effort plea against browser-initiated eviction: Safari deletes
+    // script-writable storage after 7 days without a visit, and any browser
+    // may evict under storage pressure. persist() exempts the origin where
+    // the browser honours it; a denial changes nothing. Export and
+    // file-attach remain the real safety net either way.
+    navigator.storage?.persist?.().catch(() => {});
+
     workspace.hydrate();
 
     const fromHash = readBoardHash();

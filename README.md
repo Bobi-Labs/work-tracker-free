@@ -95,19 +95,18 @@ Other scripts: `pnpm typecheck` · `pnpm test`
 
 ### Hosting it somewhere
 
-`./out` is the whole application. Drop it on any static host, open
-`index.html` from `file://`, or serve it from a USB stick.
+`./out` is the whole application, and two optional build flags cover every
+way of serving it:
 
-One caveat: if you serve it from a **sub-path** rather than a domain root
-(GitHub Pages project sites, reverse-proxy mounts), set `BASE_PATH` at build
-time or every asset will 404:
+- **A domain root** (any static host): plain `pnpm build`. No flags.
+- **No host at all** (double-click `index.html` from `file://`, run it off a
+  USB stick): `RELATIVE_ASSETS=1 pnpm build`, which emits relative asset
+  URLs. Release tarballs are built this way, so the download works as-is.
+- **A sub-path** (GitHub Pages project sites, reverse-proxy mounts):
+  `BASE_PATH=/my-subpath pnpm build`, or every asset will 404.
 
-```bash
-BASE_PATH=/my-subpath pnpm build
-```
-
-Leave it unset for a domain root, `file://`, or a desktop build. It is the only
-environment variable in the project, and it is optional.
+The flags are mutually exclusive, and those are the only environment
+variables in the project.
 
 ## Free vs. bespoke
 

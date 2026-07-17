@@ -7,10 +7,11 @@ import { dirname } from 'node:path';
  * directory is the whole application.
  *
  * ── basePath ──────────────────────────────────────────────────────────────
- * DEFAULT: none. That is the correct — and only workable — setting for the
- * three targets that matter most: a domain root, a `file://` open (exactly what
- * someone does after downloading a release), and a desktop shell. A basePath
- * breaks all three.
+ * DEFAULT: none. Correct for a domain root and a desktop shell. NOT enough
+ * for `file://`: the default build still emits root-absolute `/_next/...`
+ * asset URLs, which resolve to the drive root from a double-clicked
+ * index.html and load nothing. `file://` needs RELATIVE_ASSETS below —
+ * this was found the hard way, after a release note claimed otherwise.
  *
  * OPT-IN: set BASE_PATH at BUILD time if, and only if, the site is served from
  * a sub-path — GitHub Pages project sites (`<org>.github.io/<repo>/`), or a
@@ -31,6 +32,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const basePath = process.env.BASE_PATH ?? '';
 
+/**
+ * RELATIVE_ASSETS=1 emits `./_next/...` asset URLs instead of `/_next/...`,
+ * which is what lets the build run from `file://` (double-clicked index.html,
+ * USB stick) where root-absolute paths resolve to the drive root and nothing
+ * loads. Used for release tarballs. Mutually exclusive with BASE_PATH.
+ */
+const relativeAssets = process.env.RELATIVE_ASSETS === '1';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
@@ -38,6 +47,7 @@ const nextConfig = {
   images: { unoptimized: true },
   turbopack: { root: __dirname },
   ...(basePath ? { basePath, assetPrefix: basePath } : {}),
+  ...(relativeAssets && !basePath ? { assetPrefix: './' } : {}),
 };
 
 export default nextConfig;
