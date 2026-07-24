@@ -77,7 +77,6 @@ interface ItemSpec {
   category: ItemCategory;
   priority: ItemPriority;
   status: ItemStatus;
-  assignedTo: string;
   /** Days from today. Negative is overdue. Omit for no due date. */
   dueInDays?: number;
   /** How long ago the item was created. */
@@ -121,18 +120,16 @@ const ITEM_SPECS: ItemSpec[] = [
     category: "feature",
     priority: "high",
     status: "pending",
-    assignedTo: "Alex",
     dueInDays: 5,
     agedDays: 9,
   },
   {
-    title: "Choose monitoring tool — Sentry vs Datadog",
+    title: "Choose monitoring tool: Sentry vs Datadog",
     description:
       "Sentry covers errors well, Datadog adds full APM but costs 3x. Decision before Q3 budget locks.",
     category: "decision",
     priority: "medium",
     status: "pending",
-    assignedTo: "Sam",
     dueInDays: 2,
     agedDays: 12,
     notes: [
@@ -150,7 +147,6 @@ const ITEM_SPECS: ItemSpec[] = [
     category: "data_needed",
     priority: "high",
     status: "pending",
-    assignedTo: "Jordan",
     dueInDays: -2,
     agedDays: 16,
     notes: [
@@ -168,7 +164,6 @@ const ITEM_SPECS: ItemSpec[] = [
     category: "question",
     priority: "medium",
     status: "pending",
-    assignedTo: "Sam",
     agedDays: 6,
   },
 
@@ -180,7 +175,6 @@ const ITEM_SPECS: ItemSpec[] = [
     category: "feature",
     priority: "high",
     status: "in_progress",
-    assignedTo: "Alex",
     dueInDays: 9,
     agedDays: 21,
     notes: [
@@ -203,7 +197,6 @@ const ITEM_SPECS: ItemSpec[] = [
     category: "bug",
     priority: "medium",
     status: "in_progress",
-    assignedTo: "Jordan",
     agedDays: 14,
     notes: [
       {
@@ -220,7 +213,6 @@ const ITEM_SPECS: ItemSpec[] = [
     category: "task",
     priority: "low",
     status: "in_progress",
-    assignedTo: "Alex",
     agedDays: 8,
     notes: [
       {
@@ -239,7 +231,6 @@ const ITEM_SPECS: ItemSpec[] = [
     category: "task",
     priority: "medium",
     status: "blocked",
-    assignedTo: "Sam",
     agedDays: 19,
   },
   {
@@ -249,7 +240,6 @@ const ITEM_SPECS: ItemSpec[] = [
     category: "feature",
     priority: "high",
     status: "blocked",
-    assignedTo: "Jordan",
     dueInDays: 12,
     agedDays: 24,
     notes: [
@@ -269,7 +259,6 @@ const ITEM_SPECS: ItemSpec[] = [
     category: "feature",
     priority: "low",
     status: "done",
-    assignedTo: "Alex",
     agedDays: 27,
     completedDaysAgo: 6,
   },
@@ -280,7 +269,6 @@ const ITEM_SPECS: ItemSpec[] = [
     category: "bug",
     priority: "high",
     status: "done",
-    assignedTo: "Alex",
     agedDays: 18,
     completedDaysAgo: 4,
   },
@@ -290,7 +278,6 @@ const ITEM_SPECS: ItemSpec[] = [
     category: "task",
     priority: "medium",
     status: "done",
-    assignedTo: "Sam",
     agedDays: 22,
     completedDaysAgo: 3,
   },
@@ -301,7 +288,6 @@ const ITEM_SPECS: ItemSpec[] = [
     category: "feature",
     priority: "medium",
     status: "done",
-    assignedTo: "Jordan",
     agedDays: 31,
     completedDaysAgo: 2,
     notes: [
@@ -321,7 +307,6 @@ const ITEM_SPECS: ItemSpec[] = [
     category: "feature",
     priority: "low",
     status: "future_phase",
-    assignedTo: "Sam",
     agedDays: 33,
   },
   {
@@ -331,7 +316,6 @@ const ITEM_SPECS: ItemSpec[] = [
     category: "feature",
     priority: "low",
     status: "future_phase",
-    assignedTo: "Jordan",
     agedDays: 29,
   },
 ];
@@ -534,7 +518,10 @@ function buildItems(now: number): Item[] {
       category: spec.category,
       priority: spec.priority,
       status: spec.status,
-      assignedTo: spec.assignedTo,
+      // Always null. The free app is single-user, so there is no assignment UI
+      // and nothing to put here; the field survives on the row only so boards
+      // saved by older builds still load. See lib/schema.ts.
+      assignedTo: null,
       dueDate: spec.dueInDays === undefined ? null : due(now, spec.dueInDays),
       completedAt,
       archivedAt: null,
@@ -620,7 +607,7 @@ export function createSampleBoard(): BoardDoc {
     updatedAt: at(now, 1),
     settings: {
       clientName: "Acme Inc.",
-      phase: "Phase 2 — Polish + Scale",
+      phase: "Phase 2: Polish + Scale",
       // Deliberately null. The seed this came from pointed at a remote stock-photo
       // CDN image; that renders as a broken image the moment the app is offline.
       bannerUrl: null,

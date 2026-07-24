@@ -28,17 +28,12 @@ export interface BoardFilters {
   categories: ItemCategory[];
   priorities: ItemPriority[];
   statuses: ItemStatus[];
-  assignedTo: string | null;
   dueDate: DueDateFilter;
 }
 
 interface Props {
   filters: BoardFilters;
   onChange: (filters: BoardFilters) => void;
-  /** Distinct `assignedTo` values present on the board. When empty — the solo
-   *  case, nothing has ever been assigned — the User filter is not rendered
-   *  at all. */
-  assignees: string[];
   onToggleAddForm: () => void;
 }
 
@@ -180,6 +175,10 @@ function DueDateFilterPills({
         </span>
         <div className="h-px flex-1 bg-sky-300/30" />
       </div>
+      {/* 4 columns like every other card. A 5-wide row fits All + the four
+          options on one line, but at a quarter of the bar's width it clips
+          "Overdue", "This Week" and "No Date" — and buys nothing, because the
+          cards stretch to a common height regardless. */}
       <div className="grid grid-cols-4 gap-1.5">
         <button
           type="button"
@@ -215,76 +214,12 @@ function DueDateFilterPills({
   );
 }
 
-function UserFilterPills({
-  assignees,
-  selected,
-  onSelect,
-  onClear,
-}: {
-  assignees: string[];
-  selected: string | null;
-  onSelect: (user: string) => void;
-  onClear: () => void;
-}) {
-  return (
-    <div className="rounded-lg border border-border bg-card/50 px-3 py-2">
-      <div className="mb-2 flex items-center gap-2">
-        <div className="h-px flex-1 bg-sky-300/30" />
-        <span className="text-[10px] font-semibold uppercase tracking-widest text-sky-300">
-          User
-        </span>
-        <div className="h-px flex-1 bg-sky-300/30" />
-      </div>
-      <div className="grid grid-cols-4 gap-1.5">
-        <button
-          type="button"
-          onClick={onClear}
-          className={`w-full truncate rounded-full border px-2 py-1 text-xs font-medium transition-colors ${
-            !selected
-              ? "border-primary/40 bg-primary/10 text-primary"
-              : "border-border bg-card text-purple-300 hover:bg-accent hover:text-purple-200"
-          }`}
-        >
-          All
-        </button>
-        {assignees.map((user) => {
-          const isActive = selected === user;
-          return (
-            <button
-              key={user}
-              type="button"
-              onClick={() => (isActive ? onClear() : onSelect(user))}
-              className={`w-full truncate rounded-full border px-2 py-1 text-xs font-medium transition-colors ${
-                isActive
-                  ? "border-emerald-500/30 bg-emerald-500/20 text-emerald-400"
-                  : "border-border bg-card text-purple-300 hover:bg-accent hover:text-purple-200"
-              }`}
-              title={user}
-            >
-              {user}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-export function FilterBar({
-  filters,
-  onChange,
-  assignees,
-  onToggleAddForm,
-}: Props) {
-  // Assignment is optional in the free app, so the User filter only earns its
-  // square when something has actually been assigned to someone.
-  const showUserFilter = assignees.length > 0;
+export function FilterBar({ filters, onChange, onToggleAddForm }: Props) {
   const hasFilters =
     filters.search ||
     filters.categories.length > 0 ||
     filters.priorities.length > 0 ||
     filters.statuses.length > 0 ||
-    filters.assignedTo ||
     filters.dueDate;
 
   const toggleCategory = (cat: ItemCategory) => {
@@ -342,7 +277,6 @@ export function FilterBar({
                   categories: [],
                   priorities: [],
                   statuses: [],
-                  assignedTo: null,
                   dueDate: null,
                 })
               }
@@ -407,14 +341,6 @@ export function FilterBar({
           onSelect={(key) => onChange({ ...filters, dueDate: key })}
           onClear={() => onChange({ ...filters, dueDate: null })}
         />
-        {showUserFilter && (
-          <UserFilterPills
-            assignees={assignees}
-            selected={filters.assignedTo}
-            onSelect={(user) => onChange({ ...filters, assignedTo: user })}
-            onClear={() => onChange({ ...filters, assignedTo: null })}
-          />
-        )}
       </div>
     </div>
   );

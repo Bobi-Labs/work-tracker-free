@@ -45,12 +45,12 @@ app is a static site, and your board is a file.
 |---|---|
 | **Kanban board** | Five columns, drag-and-drop, quick-done, move arrows, keyboard-accessible dragging. |
 | **List view** | Sortable table with multi-select and bulk status changes for backlog surgery. |
-| **Item detail** | Description, priority, category, assignee, due date, and a comment thread per card. |
+| **Item detail** | Description, priority, category, due date, and a comment thread per card. |
 | **Markdown descriptions** | Bold, lists, `- [ ]` checkboxes, code, and links render right in the card detail and deliverables. Hostile input renders as inert text — the renderer never touches raw HTML. |
-| **Quick-add tokens** | Type `fix invoice !high #bug @sam due:fri` and the card lands filed, prioritized, assigned, and dated. Unrecognised tokens stay in the title. |
+| **Quick-add tokens** | Type `fix invoice !high #bug due:fri` and the card lands filed, prioritized, and dated. Unrecognised tokens stay in the title. |
 | **Deliverables** | The scope, build notes, and open questions behind each piece of work. Answer a question and it is stamped and dated; clear the answer and it reopens. |
 | **Archive** | Sweep the Done column with one click, or archive any single card from its detail panel. Nothing is deleted: archived cards restore to the column they left, any time. |
-| **Filters** | Status, priority, category, assignee, and due date (overdue / today / this week / no date). |
+| **Filters** | Status, priority, category, and due date (overdue / today / this week / no date). |
 | **Save to a real file** | On Chrome and Edge, point a board at a `.json` file on disk and every change writes straight to it. Keep it in a synced folder, a repo, anywhere you already back things up. |
 | **Custom banners** | Give each board its own image. It is resized, compressed, and stored *inside* the board, so it travels with exports and renders offline. |
 | **Three themes** | Light, dim, and dark. Dim is the mid-tone for people who find light glaring and dark muddy. |

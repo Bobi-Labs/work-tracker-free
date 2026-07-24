@@ -8,11 +8,10 @@
  *
  * The private app's version blocked submit on `!title.trim() || !assignedTo.trim()`
  * — in both `handleSubmit` and the button's `disabled` — because auth guaranteed
- * `assignedTo` was pre-filled with the signed-in user's display name. With auth
- * gone, `assignedTo` starts empty and stays empty for a solo user, so keeping that
- * clause would leave the Create button permanently, silently disabled: a form that
- * renders perfectly and cannot submit. Both guards are now title-only. Do not
- * "restore" the assignee check.
+ * `assignedTo` was pre-filled with the signed-in user's display name. This app has
+ * no auth, no assignment field and no `@` token, so that clause would leave the
+ * Create button permanently, silently disabled: a form that renders perfectly and
+ * cannot submit. Both guards are title-only. Do not "restore" the assignee check.
  */
 
 import { useId, useMemo, useState } from "react";
@@ -37,28 +36,19 @@ interface Props {
    * shape that drifts from the document model.
    */
   onSubmit: (input: NewItemInput) => void;
-  /**
-   * Names already used on this board, offered as autocomplete suggestions only.
-   * Assignee is free text and entirely optional — a solo user leaves it blank.
-   * Never gate submission on it.
-   */
-  assignees?: string[];
 }
 
-export function NewItemForm({ open, onClose, onSubmit, assignees = [] }: Props) {
+export function NewItemForm({ open, onClose, onSubmit }: Props) {
   const [title, setTitle] = useState("");
   // `category` had NO database default and was NOT NULL, so `NewItemInput`
   // requires it. This default IS the constraint now.
   const [category, setCategory] = useState<ItemCategory>("task");
   const [priority, setPriority] = useState<ItemPriority>("medium");
   const [description, setDescription] = useState("");
-  const [assignedTo, setAssignedTo] = useState("");
   const [dueDate, setDueDate] = useState("");
 
-  const assigneeListId = useId();
-
   /**
-   * Quick-add tokens, parsed live: `fix invoice !high #bug @sam due:fri`.
+   * Quick-add tokens, parsed live: `fix invoice !high #bug due:fri`.
    * A token beats its dropdown — it is the later, visible intent, and the
    * hint row below the input shows exactly what will be applied, so nothing
    * is silent. Unrecognised tokens stay in the title (see lib/quick-add.ts).
@@ -68,7 +58,6 @@ export function NewItemForm({ open, onClose, onSubmit, assignees = [] }: Props) 
     const hints: string[] = [];
     if (parsed.priority) hints.push(`${priorityLabels[parsed.priority]} priority`);
     if (parsed.category) hints.push(categoryLabels[parsed.category]);
-    if (parsed.assignedTo) hints.push(`@${parsed.assignedTo}`);
     if (parsed.dueDate)
       hints.push(`due ${format(parseISO(parsed.dueDate), "EEE, MMM d")}`);
     return hints;
@@ -79,7 +68,6 @@ export function NewItemForm({ open, onClose, onSubmit, assignees = [] }: Props) 
     setCategory("task");
     setPriority("medium");
     setDescription("");
-    setAssignedTo("");
     setDueDate("");
   };
 
@@ -97,7 +85,6 @@ export function NewItemForm({ open, onClose, onSubmit, assignees = [] }: Props) 
       category: final.category ?? category,
       priority: final.priority ?? priority,
       description: description.trim() || null,
-      assignedTo: final.assignedTo ?? (assignedTo.trim() || null),
       dueDate: final.dueDate ?? (dueDate || null),
     });
     reset();
@@ -124,7 +111,7 @@ export function NewItemForm({ open, onClose, onSubmit, assignees = [] }: Props) 
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="What needs to be done?  (try: !high #bug @sam due:fri)"
+            placeholder="What needs to be done?  (try: !high #bug due:fri)"
             className={`flex-1 ${inputClass}`}
             autoFocus
             onKeyDown={(e) => {
@@ -186,25 +173,6 @@ export function NewItemForm({ open, onClose, onSubmit, assignees = [] }: Props) 
               </option>
             ))}
           </select>
-
-          {/* Optional free text. There is no user directory to pick from — the
-              list below is autocomplete, not a constraint. */}
-          <input
-            type="text"
-            value={assignedTo}
-            onChange={(e) => setAssignedTo(e.target.value)}
-            placeholder="Assignee (optional)"
-            aria-label="Assignee (optional)"
-            list={assignees.length > 0 ? assigneeListId : undefined}
-            className={`${selectClass} w-40`}
-          />
-          {assignees.length > 0 && (
-            <datalist id={assigneeListId}>
-              {assignees.map((a) => (
-                <option key={a} value={a} />
-              ))}
-            </datalist>
-          )}
 
           <input
             type="date"

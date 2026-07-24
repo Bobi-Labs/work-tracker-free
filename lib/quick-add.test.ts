@@ -12,7 +12,6 @@ describe("parseQuickAdd", () => {
       title: "fix the invoice page",
       priority: null,
       category: null,
-      assignedTo: null,
       dueDate: null,
     });
   });
@@ -54,15 +53,16 @@ describe("parseQuickAdd", () => {
     expect(r.title).toBe("ship #launch post");
   });
 
-  it("parses assignee, preserving case; last one wins", () => {
+  /* There is no @assignee token: a free board is single-user. These guard the
+   * removal, because the old branch consumed ANY @word without checking it
+   * against anything, which silently ate real text. */
+  it("leaves @mentions in the title", () => {
     const r = parseQuickAdd("review PR @Sam @Alex", WED);
-    expect(r.assignedTo).toBe("Alex");
-    expect(r.title).toBe("review PR");
+    expect(r.title).toBe("review PR @Sam @Alex");
   });
 
-  it("does not treat a bare @ as an assignee", () => {
+  it("leaves a bare @ in the title", () => {
     const r = parseQuickAdd("meet @ noon", WED);
-    expect(r.assignedTo).toBeNull();
     expect(r.title).toBe("meet @ noon");
   });
 
@@ -108,12 +108,11 @@ describe("parseQuickAdd", () => {
   });
 
   it("all token kinds together, anywhere in the string", () => {
-    const r = parseQuickAdd("!high fix invoice #bug due:fri @sam totals", WED);
+    const r = parseQuickAdd("!high fix invoice #bug due:fri totals", WED);
     expect(r).toEqual({
       title: "fix invoice totals",
       priority: "high",
       category: "bug",
-      assignedTo: "sam",
       dueDate: "2026-07-17",
     });
   });

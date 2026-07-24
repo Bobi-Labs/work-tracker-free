@@ -32,9 +32,8 @@
  *    only ate the keystroke.
  *
  * What was kept verbatim, because it is pure logic and rewriting it only
- * introduces bugs: the filter engine and its date math, the assignees memo, the
- * selection state, and the stable `useCallback` handlers feeding the memo'd
- * children.
+ * introduces bugs: the filter engine and its date math, the selection state,
+ * and the stable `useCallback` handlers feeding the memo'd children.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -85,7 +84,6 @@ const NO_FILTERS: BoardFilters = {
   categories: [],
   priorities: [],
   statuses: [],
-  assignedTo: null,
   dueDate: null,
 };
 
@@ -99,10 +97,9 @@ export function BoardApp() {
 
   /**
    * THE ARCHIVE SPLIT. Everything the board renders — columns, list, stats,
-   * filters, assignee pills, sort-order math — consumes `activeItems`. Archived
-   * items exist only in the archive sheet. Miss one consumer and archived cards
-   * haunt it: a "Done 12" stat over a column showing 2, an assignee pill for
-   * someone who only exists on archived cards.
+   * filters, sort-order math — consumes `activeItems`. Archived items exist
+   * only in the archive sheet. Miss one consumer and archived cards haunt it:
+   * a "Done 12" stat over a column showing 2.
    */
   const activeItems = useMemo(
     () => items.filter((i) => !i.archivedAt),
@@ -168,23 +165,6 @@ export function BoardApp() {
     [items, selectedId],
   );
 
-  /**
-   * Assignees — everyone an existing item is actually assigned to.
-   *
-   * The original seeded this set from `DEV_TEAM_MEMBERS`, which was parsed out of
-   * a `process.env` var. There are no env vars in this build (and no team), so the
-   * seed is gone and the list is derived purely from the board. An empty list is
-   * the normal solo case and is handled downstream: the filter bar omits the User
-   * pills entirely, and the new-item form falls back to a free-text input.
-   */
-  const assignees = useMemo(() => {
-    const set = new Set<string>();
-    for (const item of activeItems) {
-      if (item.assignedTo) set.add(item.assignedTo);
-    }
-    return Array.from(set).sort();
-  }, [activeItems]);
-
   /* ─────────────────────────── The filter engine ───────────────────────────
    * Kept verbatim from dashboard.tsx:117-176 — same branches, same comparisons,
    * same `today` / `weekEnd` construction. Only the field names changed
@@ -227,8 +207,6 @@ export function BoardApp() {
       )
         return false;
       if (filters.statuses.length > 0 && !filters.statuses.includes(item.status))
-        return false;
-      if (filters.assignedTo && item.assignedTo !== filters.assignedTo)
         return false;
       if (filters.dueDate) {
         const now = new Date();
@@ -426,7 +404,6 @@ export function BoardApp() {
           <FilterBar
             filters={filters}
             onChange={setFilters}
-            assignees={assignees}
             onToggleAddForm={handleToggleAddForm}
           />
         </div>
@@ -438,7 +415,6 @@ export function BoardApp() {
             open={showAddForm}
             onClose={() => setShowAddForm(false)}
             onSubmit={handleCreateItem}
-            assignees={assignees}
           />
         </div>
       )}

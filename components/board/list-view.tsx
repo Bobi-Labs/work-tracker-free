@@ -26,7 +26,6 @@ type SortKey =
   | "priority"
   | "status"
   | "category"
-  | "assignedTo"
   | "createdAt"
   | "description";
 
@@ -97,9 +96,6 @@ export function ListView({
           break;
         case "category":
           cmp = a.category.localeCompare(b.category);
-          break;
-        case "assignedTo":
-          cmp = (a.assignedTo ?? "").localeCompare(b.assignedTo ?? "");
           break;
         case "createdAt":
           cmp = a.createdAt.localeCompare(b.createdAt);
@@ -188,7 +184,6 @@ export function ListView({
                   ["category", "Category"],
                   ["title", "Title"],
                   ["description", "Description"],
-                  ["assignedTo", "Assigned"],
                   ["createdAt", "Created"],
                 ] as [SortKey, string][]
               ).map(([key, label]) => (
@@ -294,9 +289,6 @@ export function ListView({
                       )}
                     </div>
                   </td>
-                  <td className="px-3 py-2.5 text-muted-foreground">
-                    {item.assignedTo ?? "—"}
-                  </td>
                   <td className="px-3 py-2.5 text-muted-foreground whitespace-nowrap">
                     {new Date(item.createdAt).toLocaleDateString("en-US", {
                       month: "short",
@@ -324,7 +316,7 @@ export function ListView({
             {sorted.length === 0 && (
               <tr>
                 <td
-                  colSpan={9}
+                  colSpan={8}
                   className="px-4 py-12 text-center text-sm text-muted-foreground"
                 >
                   No items match your filters

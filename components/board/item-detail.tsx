@@ -247,7 +247,6 @@ export function ItemDetail({
   const [editingTitle, setEditingTitle] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [assignedTo, setAssignedTo] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<ItemPriority>("medium");
   const [category, setCategory] = useState<ItemCategory>("task");
@@ -278,7 +277,6 @@ export function ItemDetail({
     setLoadedItemId(item.id);
     setTitle(item.title);
     setDescription(item.description ?? "");
-    setAssignedTo(item.assignedTo ?? "");
     setDueDate(item.dueDate ?? "");
     setPriority(item.priority);
     setCategory(item.category);
@@ -314,8 +312,6 @@ export function ItemDetail({
     if (title.trim() && title !== item.title) patch.title = title.trim();
     if (description !== (item.description ?? ""))
       patch.description = description || null;
-    if (assignedTo !== (item.assignedTo ?? ""))
-      patch.assignedTo = assignedTo || null;
     if (dueDate !== (item.dueDate ?? "")) patch.dueDate = dueDate || null;
     if (priority !== item.priority) patch.priority = priority;
     if (category !== item.category) patch.category = category;
@@ -429,7 +425,10 @@ export function ItemDetail({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* Priority / Category / Due Date. Due Date used to share a second
+              row with Assigned To; with assignment gone it moves up here
+              rather than sitting alone in a half-empty row. */}
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="mb-1.5 block text-[10px] uppercase tracking-widest text-muted-foreground">
                 Priority
@@ -476,23 +475,6 @@ export function ItemDetail({
                   </option>
                 ))}
               </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="mb-1.5 block text-[10px] uppercase tracking-widest text-muted-foreground">
-                Assigned To
-              </label>
-              <Input
-                value={assignedTo}
-                onChange={(e) => {
-                  setAssignedTo(e.target.value);
-                  markDirty();
-                }}
-                placeholder="Optional"
-                className="h-9"
-              />
             </div>
             <div>
               <label className="mb-1.5 block text-[10px] uppercase tracking-widest text-muted-foreground">

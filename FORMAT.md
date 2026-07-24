@@ -69,7 +69,7 @@ network.
   "category": "bug",         // data_needed | question | decision | task | bug | feature
   "priority": "high",        // high | medium | low
   "status": "in_progress",   // pending | in_progress | done | blocked | future_phase
-  "assignedTo": null,        // string | null — free text; there is no user system
+  "assignedTo": null,        // string | null — vestigial, always null; no assignment UI
   "dueDate": null,           // "YYYY-MM-DD" | null
   "completedAt": null,       // derived — see below
   "archivedAt": null,        // derived — see below

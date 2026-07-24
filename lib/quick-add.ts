@@ -1,5 +1,5 @@
 /**
- * Quick-add token parsing: `fix invoice !high #bug @sam due:fri`.
+ * Quick-add token parsing: `fix invoice !high #bug due:fri`.
  *
  * The capture-speed feature. Tokens are parsed out of the new-item title and
  * become structured fields; everything unrecognised stays in the title
@@ -8,6 +8,11 @@
  * consumed when it maps to a value this board actually understands. Better to
  * leave a token in the title than to silently eat a word.
  *
+ * There is deliberately no `@name` token. A free board is single-user and local
+ * — there is nobody to assign to — and the old `@` branch was the one place
+ * that broke the rule above, consuming any `@word` without checking it against
+ * anything. `email @sam about the invoice` now keeps its `@sam`.
+ *
  * Pure functions, no DOM, no store. The form calls `parseQuickAdd` on every
  * keystroke to drive a "will set …" hint, and once more on submit for the real
  * values, so parsing must stay cheap and must never throw.
@@ -15,7 +20,6 @@
  * Syntax (whitespace-delimited whole tokens, case-insensitive):
  *   !high !medium !low        priority  (also !hi !med !lo)
  *   #task #bug #feature …     category  (must match a real category key)
- *   @name                     assignee  (case preserved; last one wins)
  *   due:today due:fri due:+3  due date  (also tomorrow, ISO, M/D)
  */
 
@@ -28,7 +32,6 @@ export interface QuickAddParse {
   title: string;
   priority: ItemPriority | null;
   category: ItemCategory | null;
-  assignedTo: string | null;
   /** `YYYY-MM-DD`, same shape as `Item.dueDate` and `<input type="date">`. */
   dueDate: string | null;
 }
@@ -128,7 +131,6 @@ export function parseQuickAdd(
     title: "",
     priority: null,
     category: null,
-    assignedTo: null,
     dueDate: null,
   };
 
@@ -154,11 +156,6 @@ export function parseQuickAdd(
         result.category = mapped;
         continue;
       }
-    }
-
-    if (token.length > 1 && token.startsWith("@")) {
-      result.assignedTo = token.slice(1);
-      continue;
     }
 
     const due = token.match(/^due:(.+)$/i);

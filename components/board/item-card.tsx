@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Calendar, User, CheckCircle2, ArrowRight } from "lucide-react";
+import { Calendar, CheckCircle2, ArrowRight } from "lucide-react";
 import {
   priorityColors,
   categoryColors,
@@ -85,12 +85,6 @@ export const ItemCard = memo(function ItemCard({
 
       <div className="mt-1.5 flex items-center gap-3 text-[11px] text-muted-foreground">
         <div className="flex flex-wrap items-center gap-3 flex-1 min-w-0">
-          {item.assignedTo && (
-            <span className="flex items-center gap-1">
-              <User className="h-3 w-3" />
-              {item.assignedTo}
-            </span>
-          )}
           {item.dueDate && (
             <span className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />

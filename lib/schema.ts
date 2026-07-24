@@ -99,7 +99,16 @@ export const ItemSchema = z.object({
   category: ItemCategorySchema,
   priority: ItemPrioritySchema,
   status: ItemStatusSchema,
-  assignedTo: z.string().nullable(),
+  /**
+   * Vestigial, and `default(null)` for the same reason `archivedAt` is.
+   *
+   * The free app is single-user and local, so it has no assignment UI and
+   * never writes a name here. The field stays on the row because boards saved
+   * by builds that DID assign must keep loading with their values intact —
+   * dropping the key from the schema would make zod strip them silently.
+   * A bespoke build re-enables the UI without a migration or a version bump.
+   */
+  assignedTo: z.string().nullable().default(null),
   dueDate: z.string().nullable(),
   completedAt: z.string().nullable(),
   /**
