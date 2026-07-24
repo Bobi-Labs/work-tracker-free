@@ -30,9 +30,9 @@
  *
  * 4. **Invoices, updates, and discovery plans are gone.** Invoices drag in
  *    currency, tax, and rounding. The "updates" feature's category icons were
- *    literally forestry expense categories (vehicle / travel / purchases /
- *    premises) — client-specific business logic that has no place in a general
- *    tool.
+ *    literally one client's expense categories (vehicle, travel, purchases,
+ *    premises), business logic specific to them that has no place in a
+ *    general tool.
  *
  * Everything is board-scoped: deliverables live inside the `BoardDoc`, with
  * their questions embedded. Nothing here fetches, and nothing here can fail —
