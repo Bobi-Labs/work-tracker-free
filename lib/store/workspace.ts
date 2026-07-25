@@ -286,7 +286,7 @@ class WorkspaceImpl implements Workspace {
     try {
       this.kv.setItem(boardStorageKey(doc.id), JSON.stringify(doc, null, 2));
     } catch (e) {
-      throw new StoreError("quota", "Could not create the board — storage is full.", {
+      throw new StoreError("quota", "Could not create the board: storage is full.", {
         cause: e,
       });
     }

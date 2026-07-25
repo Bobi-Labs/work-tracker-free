@@ -305,7 +305,7 @@ function FirstRun({ workspace }: { workspace: Workspace }) {
 
         <p className="mt-4 text-xs text-muted-foreground">
           The sample board is a fictional project with 15 items and a handful of
-          deliverables — a fast way to see what the tool does. You can delete it at
+          deliverables, a fast way to see what the tool does. You can delete it at
           any time, and it never touches the network.
         </p>
 
@@ -383,7 +383,7 @@ function CorruptBoard({
         <p className="mt-3 text-sm text-muted-foreground">
           <strong className="text-foreground">Nothing has been deleted.</strong>{" "}
           Saving is paused so that the damaged data is not overwritten. Download it
-          first — a broken file can often be repaired by hand, and it is the only
+          first: a broken file can often be repaired by hand, and it is the only
           copy that exists.
         </p>
 
@@ -400,7 +400,7 @@ function CorruptBoard({
               className="sm:flex-1"
             >
               <Trash2 className="h-4 w-4" />
-              Yes — erase it and start over
+              Yes, erase it and start over
             </Button>
           ) : (
             <Button

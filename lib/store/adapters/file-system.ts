@@ -131,14 +131,14 @@ function toFileStoreError(e: unknown, fileName: string, verb: string): StoreErro
     case "SecurityError":
       return new StoreError(
         "unavailable",
-        `Permission to use “${fileName}” was withdrawn, so it could not be ${verb}. Reconnect the file to continue saving to it — your board is still saved in this browser.`,
+        `Permission to use “${fileName}” was withdrawn, so it could not be ${verb}. Reconnect the file to continue saving to it. Your board is still saved in this browser.`,
         { cause: e },
       );
 
     case "NotFoundError":
       return new StoreError(
         "unavailable",
-        `“${fileName}” is no longer where it was — it may have been moved, renamed, or deleted. Your board is still saved in this browser; pick a new file to keep syncing it to disk.`,
+        `“${fileName}” is no longer where it was. It may have been moved, renamed, or deleted. Your board is still saved in this browser; pick a new file to keep syncing it to disk.`,
         { cause: e },
       );
 
@@ -319,13 +319,13 @@ class FileSystemAdapter implements StorageAdapter {
     if (state === "denied") {
       throw new StoreError(
         "unavailable",
-        `Permission to use “${this.label}” was denied. Your board is still saved in this browser — pick a different file to sync it to disk.`,
+        `Permission to use “${this.label}” was denied. Your board is still saved in this browser. Pick a different file to sync it to disk.`,
       );
     }
 
     throw new StoreError(
       "unavailable",
-      `“${this.label}” needs your permission again — browsers forget file access on reload. Click “Reconnect ${this.label}” to resume saving to it. Nothing is lost: your board is still saved in this browser.`,
+      `“${this.label}” needs your permission again. Browsers forget file access on reload. Click “Reconnect ${this.label}” to resume saving to it. Nothing is lost: your board is still saved in this browser.`,
     );
   }
 

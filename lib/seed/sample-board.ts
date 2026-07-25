@@ -152,7 +152,7 @@ const ITEM_SPECS: ItemSpec[] = [
     notes: [
       {
         content:
-          "Accounting has the country list ready, but the US state list is still being reconciled. Chasing — this is the last blocker on checkout.",
+          "Accounting has the country list ready, but the US state list is still being reconciled. Chasing; this is the last blocker on checkout.",
         daysAgo: 2,
       },
     ],
@@ -180,12 +180,12 @@ const ITEM_SPECS: ItemSpec[] = [
     notes: [
       {
         content:
-          "Pushed a draft branch — `feat/multi-org-switcher`. Feedback before I open the PR?",
+          "Pushed a draft branch, `feat/multi-org-switcher`. Feedback before I open the PR?",
         daysAgo: 4,
       },
       {
         content:
-          "Heads up: I rewrote the context provider too. Worth a careful look at the cache-key edge case in `OrgContext` — that's where the bodies are buried.",
+          "Heads up: I rewrote the context provider too. Worth a careful look at the cache-key edge case in `OrgContext`; that's where the bodies are buried.",
         daysAgo: 3,
       },
     ],
@@ -193,7 +193,7 @@ const ITEM_SPECS: ItemSpec[] = [
   {
     title: "Onboarding email goes to spam in Outlook",
     description:
-      "SPF + DKIM both pass, DMARC quarantine. Suspect the content is triggering it — there's a 'click here' button. Trying a plain-text variant.",
+      "SPF + DKIM both pass, DMARC quarantine. Suspect the content is triggering it; there's a 'click here' button. Trying a plain-text variant.",
     category: "bug",
     priority: "medium",
     status: "in_progress",
@@ -217,7 +217,7 @@ const ITEM_SPECS: ItemSpec[] = [
     notes: [
       {
         content:
-          "Looking at the schema again — we may want a composite index here rather than the two singles. Will benchmark before I drop anything.",
+          "Looking at the schema again: we may want a composite index here rather than the two singles. Will benchmark before I drop anything.",
         daysAgo: 3,
       },
     ],
@@ -236,7 +236,7 @@ const ITEM_SPECS: ItemSpec[] = [
   {
     title: "SSO via Google Workspace",
     description:
-      "Enterprise customer asked for it. Blocked on legal review of the OAuth scope list — they want our DPA updated first.",
+      "Enterprise customer asked for it. Blocked on legal review of the OAuth scope list; they want our DPA updated first.",
     category: "feature",
     priority: "high",
     status: "blocked",
@@ -245,7 +245,7 @@ const ITEM_SPECS: ItemSpec[] = [
     notes: [
       {
         content:
-          "Confirmed with legal — the DPA update lands Tuesday. That should unblock this by Wednesday.",
+          "Confirmed with legal: the DPA update lands Tuesday. That should unblock this by Wednesday.",
         daysAgo: 1,
       },
     ],
@@ -336,7 +336,7 @@ const DELIVERABLE_SPECS: DeliverableSpec[] = [
       "as a funnel.",
     guideMd:
       "Visit `/onboard` for the new flow.\n\n" +
-      "Power-user shortcuts — skipping steps when every required field is already filled — live under " +
+      "Power-user shortcuts (skipping steps when every required field is already filled) live under " +
       "**Settings → Onboarding**.",
     agedDays: 61,
     touchedDaysAgo: 12,
@@ -356,14 +356,14 @@ const DELIVERABLE_SPECS: DeliverableSpec[] = [
     buildNotesMd:
       "## Sources audited\n" +
       "Cloud provider admin-role events, a Postgres trigger-based audit log, and the payment webhook log. " +
-      "Settled on the Postgres trigger as the canonical source — it captures who/what/when at the row level " +
+      "Settled on the Postgres trigger as the canonical source: it captures who/what/when at the row level " +
       "without relying on the app to *remember* to log.\n\n" +
       "## Retention model\n" +
       "90 days hot in the live `audit_events` table. A daily job archives anything older to cold storage under " +
       "a stable filename scheme. Compliance can request a thaw and get a searchable CSV within 4h.\n\n" +
       "## Out of scope\n" +
-      "- Real-time anomaly alerting — error tracking already covers that; the audit log is deliberately post-hoc.\n" +
-      "- Cross-org querying — every org sees only its own entries.",
+      "- Real-time anomaly alerting: error tracking already covers that; the audit log is deliberately post-hoc.\n" +
+      "- Cross-org querying: every org sees only its own entries.",
     agedDays: 47,
     touchedDaysAgo: 2,
   },
@@ -377,11 +377,11 @@ const DELIVERABLE_SPECS: DeliverableSpec[] = [
       "deep links respect the org param.",
     buildNotesMd:
       "Refactored `UserContext` into an `OrgContext` + `UserContext` stack. A few downstream selectors " +
-      "needed updating — keep an eye on the dashboard query keys for cache-key drift.\n\n" +
+      "needed updating; keep an eye on the dashboard query keys for cache-key drift.\n\n" +
       "**Plan**\n\n" +
-      "- _Week 1 — discovery:_ audit which endpoints accept `org_id`; find the queries that need org-scoping.\n" +
-      "- _Week 2 — build:_ `OrgContext` provider, switcher UI, URL param plumbing.\n" +
-      "- _Week 3 — polish:_ empty state for single-org users, `cmd+shift+O` to switch.",
+      "- _Week 1 (discovery):_ audit which endpoints accept `org_id`; find the queries that need org-scoping.\n" +
+      "- _Week 2 (build):_ `OrgContext` provider, switcher UI, URL param plumbing.\n" +
+      "- _Week 3 (polish):_ empty state for single-org users, `cmd+shift+O` to switch.",
     agedDays: 21,
     touchedDaysAgo: 1,
     questions: [
@@ -389,7 +389,7 @@ const DELIVERABLE_SPECS: DeliverableSpec[] = [
         questionMd:
           "Should switching org land you on a fresh route, or keep you on the same page?",
         answerMd:
-          "Stay on the same page — we'll show a soft toast confirming the org changed.",
+          "Stay on the same page; we'll show a soft toast confirming the org changed.",
         status: "answered",
         askedDaysAgo: 14,
         answeredDaysAgo: 11,
@@ -445,7 +445,7 @@ const DELIVERABLE_SPECS: DeliverableSpec[] = [
     subtitle: "Phase 3 candidate",
     status: "future",
     scopeMd:
-      "Admins edit transactional emails — welcome, password reset, receipts — in a side-by-side editor, " +
+      "Admins edit transactional emails (welcome, password reset, receipts) in a side-by-side editor, " +
       "with a mailable preview before save and token autocomplete for `{{user.first_name}}` and friends. " +
       "Sized at roughly one dev-week. Out of scope for the current sprint.",
     agedDays: 15,
@@ -458,7 +458,7 @@ const DELIVERABLE_SPECS: DeliverableSpec[] = [
     subtitle: "security backlog",
     status: "pending",
     scopeMd:
-      "Standard TOTP flow — QR code at setup, 6-digit code at login, hashed backup codes. " +
+      "Standard TOTP flow: QR code at setup, 6-digit code at login, hashed backup codes. " +
       "SMS fallback is explicitly out of scope (cost, and it's spoofable).",
     agedDays: 11,
     touchedDaysAgo: 11,

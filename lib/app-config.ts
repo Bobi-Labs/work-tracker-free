@@ -12,7 +12,7 @@
 export const APP_NAME = "Bobi Tracker";
 
 export const APP_TAGLINE =
-  "A kanban board that lives in your browser. No account, no server, no tracking — your work stays on your machine.";
+  "A kanban board that lives in your browser. No account, no server, no tracking: your work stays on your machine.";
 
 /**
  * Attribution shown in the app banner.

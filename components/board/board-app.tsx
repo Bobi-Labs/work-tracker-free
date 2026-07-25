@@ -745,7 +745,7 @@ function useBoardFile(
         // attached, and the board on screen was never touched.
         setPending(null);
         setError(
-          `${messageFor(e, "That file is not a board.")} Nothing was changed — your board is exactly as it was.`,
+          `${messageFor(e, "That file is not a board.")} Nothing was changed. Your board is exactly as it was.`,
         );
       } finally {
         setBusy(false);
@@ -780,8 +780,8 @@ function useBoardFile(
           });
           setError(
             permission === "denied"
-              ? `Permission to use “${handle.name}” was denied. This board is still saving in this browser — nothing was lost.`
-              : `“${handle.name}” was not reconnected. This board is still saving in this browser — nothing was lost.`,
+              ? `Permission to use “${handle.name}” was denied. This board is still saving in this browser. Nothing was lost.`
+              : `“${handle.name}” was not reconnected. This board is still saving in this browser. Nothing was lost.`,
           );
           return;
         }

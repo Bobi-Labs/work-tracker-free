@@ -143,7 +143,7 @@ function SaveStatus({
         className="flex items-center gap-1.5 rounded-md border border-destructive bg-destructive/15 px-2.5 py-1.5 text-xs font-bold text-destructive transition-colors hover:bg-destructive/25"
       >
         <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-        <span>NOT SAVING — export now</span>
+        <span>NOT SAVING. Export now</span>
       </button>
     );
   }
@@ -166,7 +166,7 @@ function SaveStatus({
         className="flex min-w-0 items-center gap-1.5 px-1 text-xs text-muted-foreground"
         title={
           status.lastSavedAt
-            ? `Last saved ${new Date(status.lastSavedAt).toLocaleTimeString()} — to ${sinkLabel}`
+            ? `Last saved ${new Date(status.lastSavedAt).toLocaleTimeString()} to ${sinkLabel}`
             : undefined
         }
       >
@@ -206,7 +206,7 @@ function ReconnectPill({
     <button
       type="button"
       onClick={onOpenSettings}
-      title={`“${name}” is not being updated — browsers forget file permission on reload. Click to reconnect it.`}
+      title={`“${name}” is not being updated. Browsers forget file permission on reload. Click to reconnect it.`}
       className="flex min-w-0 items-center gap-1.5 rounded-md border border-orange-500/40 bg-orange-500/10 px-2 py-1 text-xs font-semibold text-orange-500 transition-colors hover:bg-orange-500/20"
     >
       <PlugZap className="h-3.5 w-3.5 shrink-0" />

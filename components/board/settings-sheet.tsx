@@ -527,7 +527,7 @@ export function SettingsSheet({ open, onOpenChange, file }: Props) {
                 </p>
                 <p className="mt-1 text-muted-foreground">
                   <span className="font-mono text-xs">{staged.filename}</span>{" "}
-                  will replace everything in “{doc.name}” — items, notes and
+                  will replace everything in “{doc.name}”: items, notes and
                   deliverables. This cannot be undone. Export first if you want a
                   copy.
                 </p>
@@ -586,7 +586,7 @@ export function SettingsSheet({ open, onOpenChange, file }: Props) {
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
               {APP_NAME} has no account and no server. Nothing you type here is
-              sent anywhere — there is no request to send it in.
+              sent anywhere. There is no request to send it in.
             </p>
 
             {fileAttached ? (
@@ -602,7 +602,7 @@ export function SettingsSheet({ open, onOpenChange, file }: Props) {
                   browser copy, and the file would still be sitting on your disk.
                 </p>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Back that file up like any other file — a synced folder, a repo,
+                  Back that file up like any other file: a synced folder, a repo,
                   a drive you actually back up. We have no copy of it, because we
                   never had one.
                 </p>
@@ -631,7 +631,7 @@ export function SettingsSheet({ open, onOpenChange, file }: Props) {
             <p className="mt-2 text-sm text-muted-foreground">
               <strong className="text-foreground">Export regularly.</strong> The
               exported <span className="font-mono text-xs">.wtboard.json</span>{" "}
-              is the complete board — keep it somewhere you back up.
+              is the complete board. Keep it somewhere you back up.
             </p>
 
             {status.error && (
@@ -641,8 +641,8 @@ export function SettingsSheet({ open, onOpenChange, file }: Props) {
               >
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>
-                  {status.error.message} Recent changes may not have been saved —
-                  export this board now.
+                  {status.error.message} Recent changes may not have been saved.
+                  Export this board now.
                 </span>
               </p>
             )}
@@ -712,7 +712,7 @@ function FileSection({ file }: { file: BoardFileControls }) {
 
       {state.kind === "unsupported" && (
         <p className="text-sm text-muted-foreground">
-          This browser can&apos;t save a board straight to a file — only Chrome and
+          This browser can&apos;t save a board straight to a file. Only Chrome and
           Edge (on desktop) can. Your board is saved in{" "}
           <strong className="text-foreground">this browser</strong>, and{" "}
           <strong className="text-foreground">Export</strong> below still gives you
@@ -726,7 +726,7 @@ function FileSection({ file }: { file: BoardFileControls }) {
             Saving to{" "}
             <strong className="text-foreground">this browser&apos;s storage</strong>
             . Attach a file and every change is written to{" "}
-            <strong className="text-foreground">both</strong> — the browser copy
+            <strong className="text-foreground">both</strong>. The browser copy
             stays as it is, and the file is yours: keep it in a synced folder, a
             repo, anywhere you already back up.
           </p>
@@ -786,7 +786,7 @@ function FileSection({ file }: { file: BoardFileControls }) {
             </span>
           </p>
           <p className="mt-1 text-muted-foreground">
-            Browsers forget file permission every time the page reloads — this is
+            Browsers forget file permission every time the page reloads. This is
             the browser being careful, not something going wrong. Until you
             reconnect, this board is saving to{" "}
             <strong className="text-foreground">this browser only</strong>. Nothing
@@ -817,7 +817,7 @@ function FileSection({ file }: { file: BoardFileControls }) {
           </p>
           <p className="mt-1 text-muted-foreground">
             This board is still saving to{" "}
-            <strong className="text-foreground">this browser</strong> — nothing was
+            <strong className="text-foreground">this browser</strong>. Nothing was
             lost. Try again, or pick a different file.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -853,8 +853,8 @@ function FileSection({ file }: { file: BoardFileControls }) {
           <p className="font-semibold text-orange-400">Replace this board?</p>
           <p className="mt-1 text-muted-foreground">
             <span className="font-mono text-xs">{file.pendingOpen.name}</span> has a
-            board in it. Opening it replaces everything currently on this board —
-            items, notes and deliverables — and from then on this board saves to
+            board in it. Opening it replaces everything currently on this board
+            (items, notes and deliverables), and from then on this board saves to
             that file. This cannot be undone; export first if you want a copy.
           </p>
           <div className="mt-3 flex gap-2">

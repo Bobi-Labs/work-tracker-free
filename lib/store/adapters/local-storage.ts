@@ -86,7 +86,7 @@ export class LocalStorageAdapter implements StorageAdapter {
       if (isQuotaError(e)) {
         throw new StoreError(
           "quota",
-          "Browser storage is full — this board could not be saved. Export it to a file, then delete boards you no longer need.",
+          "Browser storage is full, so this board could not be saved. Export it to a file, then delete boards you no longer need.",
           { cause: e },
         );
       }

@@ -121,7 +121,7 @@ export async function saveBoardFileHandle(
     if (e instanceof StoreError) throw e;
     throw new StoreError(
       "io",
-      "Could not remember which file this board is saved to — it will need reconnecting after a reload.",
+      "Could not remember which file this board is saved to. It will need reconnecting after a reload.",
       { cause: e },
     );
   }

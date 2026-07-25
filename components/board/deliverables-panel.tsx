@@ -113,7 +113,7 @@ const TAB_CONFIG: Record<
 const EMPTY_COPY: Record<StorableTab, { title: string; body: string }> = {
   backlog: {
     title: "Nothing in the backlog yet",
-    body: "A deliverable is a chunk of work you could hand to someone — a page, a feature, a report. Park the ones you haven't started here, with a note on what they involve.",
+    body: "A deliverable is a chunk of work you could hand to someone: a page, a feature, a report. Park the ones you haven't started here, with a note on what they involve.",
   },
   ongoing: {
     title: "No work in progress",
@@ -121,7 +121,7 @@ const EMPTY_COPY: Record<StorableTab, { title: string; body: string }> = {
   },
   delivered: {
     title: "Nothing delivered yet",
-    body: "Finished deliverables land here — scope, notes and answered questions intact — so you can show what was done without reconstructing it from memory.",
+    body: "Finished deliverables land here with scope, notes and answered questions intact, so you can show what was done without reconstructing it from memory.",
   },
 };
 
@@ -1490,7 +1490,7 @@ function QuestionsTab({
           No questions, because there is nothing to ask about yet
         </div>
         <p className="mx-auto mt-1.5 max-w-md text-xs leading-relaxed text-muted-foreground">
-          Questions hang off a deliverable — they are the things you need someone
+          Questions hang off a deliverable: they are the things you need someone
           to decide before that piece of work can move. Create a deliverable
           first, then add questions to it.
         </p>
