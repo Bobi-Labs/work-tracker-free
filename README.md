@@ -30,7 +30,7 @@ app is a static site, and your board is a file.
 - **Open it, use it.** The first screen has two buttons. One of them loads a
   sample project so you can feel the tool before you commit a single task.
 - **Verify the privacy claim yourself.** The app ships a
-  `Content-Security-Policy` of `connect-src 'none'` — your *browser* refuses
+  `Content-Security-Policy` of `connect-src 'none'`: your *browser* refuses
   every fetch, XHR, and WebSocket the page could attempt, so "no tracking" is
   enforced, not promised. The hosted deployment's headers also lock images,
   fonts, and media to the app itself. Or just unplug from the internet:
@@ -46,7 +46,7 @@ app is a static site, and your board is a file.
 | **Kanban board** | Five columns, drag-and-drop, quick-done, move arrows, keyboard-accessible dragging. |
 | **List view** | Sortable table with multi-select and bulk status changes for backlog surgery. |
 | **Item detail** | Description, priority, category, due date, and a comment thread per card. |
-| **Markdown descriptions** | Bold, lists, `- [ ]` checkboxes, code, and links render right in the card detail and deliverables. Hostile input renders as inert text — the renderer never touches raw HTML. |
+| **Markdown descriptions** | Bold, lists, `- [ ]` checkboxes, code, and links render right in the card detail and deliverables. Hostile input renders as inert text. The renderer never touches raw HTML. |
 | **Quick-add tokens** | Type `fix invoice !high #bug due:fri` and the card lands filed, prioritized, and dated. Unrecognised tokens stay in the title. |
 | **Deliverables** | The scope, build notes, and open questions behind each piece of work. Answer a question and it is stamped and dated; clear the answer and it reopens. |
 | **Archive** | Sweep the Done column with one click, or archive any single card from its detail panel. Nothing is deleted: archived cards restore to the column they left, any time. |
