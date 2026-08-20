@@ -43,3 +43,25 @@ export const REPO_URL: string | null =
  */
 export const FEEDBACK_URL: string | null =
   "https://bobilabs.dev/worktracker/feedback";
+
+/**
+ * Where "Work with us" goes: the maker's link tree.
+ *
+ * This is the one commercial ask in the whole app, and it exists because the
+ * free tool is the top of the funnel for bespoke work. It is a plain link, so
+ * the app still makes zero network calls.
+ *
+ * Forks: retarget it, or set `null` to remove the button and its prompt
+ * entirely. The banner and the first-run screen both adapt.
+ */
+export const WORK_WITH_US_URL: string | null = "https://bobilabs.dev/links";
+
+/** The sales line shown beside that button on surfaces wide enough for it.
+ *  Rendered only where a host passes it (the board banner does; the first-run
+ *  screen deliberately does not, since it is a narrow column).
+ *
+ *  It deliberately stops at the question. The operator's original line ended
+ *  "…Work with us ------>", which the button then repeated; the arrow does
+ *  that pointing now, so the phrase lives in one place. */
+export const WORK_WITH_US_PROMPT =
+  "Need something custom built, a problem fixed?";

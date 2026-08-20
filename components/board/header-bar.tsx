@@ -35,7 +35,11 @@ import {
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
-import { APP_NAME, FEEDBACK_URL } from "@/lib/app-config";
+import {
+  APP_NAME,
+  FEEDBACK_URL,
+  WORK_WITH_US_PROMPT,
+} from "@/lib/app-config";
 import { safeBannerImage } from "@/lib/banner-image";
 import Attribution, {
   attributionPillClass,
@@ -359,8 +363,13 @@ export function HeaderBar({
 
         {/* The attribution stack, with Feedback as its third pill — a plain
             link to the maker's form page, so the app itself still makes zero
-            network calls. */}
-        <Attribution className="absolute right-3 top-3">
+            network calls. The banner is the wide surface, so it is the one
+            that passes the "Work with us" prompt; the first-run screen renders
+            the same stack without it. */}
+        <Attribution
+          className="absolute right-3 top-3"
+          prompt={WORK_WITH_US_PROMPT}
+        >
           {FEEDBACK_URL && (
             <a
               href={FEEDBACK_URL}
